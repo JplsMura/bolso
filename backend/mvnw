@@ -1,0 +1,18 @@
+#!/bin/sh
+# Wrapper mínimo do Maven: baixa a versão de .mvn/wrapper/maven-wrapper.properties
+# para ~/.m2/wrapper/dists na primeira execução e repassa os argumentos.
+# Pode ser trocado pelo oficial a qualquer momento com: mvn -N wrapper:wrapper
+set -e
+BASE_DIR=$(cd "$(dirname "$0")" && pwd)
+DIST_URL=$(sed -n 's/^distributionUrl=//p' "$BASE_DIR/.mvn/wrapper/maven-wrapper.properties" | tr -d '\r')
+NAME=$(basename "$DIST_URL" -bin.zip)
+DISTS="${MAVEN_USER_HOME:-$HOME/.m2}/wrapper/dists"
+if [ ! -x "$DISTS/$NAME/bin/mvn" ]; then
+  echo "Baixando $NAME..."
+  mkdir -p "$DISTS"
+  TMP=$(mktemp)
+  if command -v curl >/dev/null 2>&1; then curl -fsSL -o "$TMP" "$DIST_URL"; else wget -q -O "$TMP" "$DIST_URL"; fi
+  unzip -q -o "$TMP" -d "$DISTS"
+  rm -f "$TMP"
+fi
+exec "$DISTS/$NAME/bin/mvn" "$@"

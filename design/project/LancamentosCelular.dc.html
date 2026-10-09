@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Lançamentos no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+  <div style="padding: 16px 16px 0 16px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <h1 style="margin: 0; font-size: 22px; font-weight: 700">Lançamentos</h1>
+      <span style="font-size: 14px; color: #9BA8A5">Out 2026</span>
+    </div>
+
+    <div style="position: relative">
+      <label for="busca" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Buscar lançamentos</label>
+      <svg style="position: absolute; left: 14px; top: 13px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="busca" type="text" placeholder="Buscar, por exemplo: uber" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 14px 0 40px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+    </div>
+
+    <div style="display: flex; gap: 8px">
+      <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #2DD4BF; color: #04231F; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center">Todos</span>
+      <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #1E2629; font-size: 13px; display: inline-flex; align-items: center">Meta</span>
+      <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #1E2629; font-size: 13px; display: inline-flex; align-items: center">Tag</span>
+      <span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #1E2629; font-size: 13px; display: inline-flex; align-items: center">Pagamento</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{grupos}}" as="g" hint-placeholder-count="3">
+        <div style="display: flex; flex-direction: column">
+          <div style="font-size: 12px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 0 6px 0">{{g.dia}}</div>
+          <sc-for list="{{g.itens}}" as="i" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #1E2629">
+              <span style="{{i.dot}}"></span>
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 15px; font-weight: 500">{{i.descricao}}</span>
+                <span style="font-size: 12px; color: #9BA8A5">{{i.detalhe}}</span>
+              </div>
+              <span style="{{i.valorStyle}}">{{i.valor}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; background: #161C1F; border-top: 1px solid #2B353A; display: flex; padding: 0 8px">
+    <a href="InicioCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+    <a href="LancamentosCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #2DD4BF; font-size: 12px; font-weight: 600; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Lançamentos</a>
+    <a href="LancamentosCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Cartões</a>
+    <a href="LancamentosCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Mês</a>
+  </div>
+
+  <a href="NovoGasto.dc.html" aria-label="Novo gasto" style="position: absolute; right: 16px; bottom: 92px; width: 56px; height: 56px; border-radius: 28px; background: #2DD4BF; color: #04231F; display: flex; align-items: center; justify-content: center; text-decoration: none"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const cores = { fixos: '#6EA8FE', conforto: '#A3E06B', conhecimento: '#5CD6E8', prazeres: '#FF9F5A' };
+    const saida = 'font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap';
+    const entrada = 'font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: #2DD4BF';
+    const dot = (c) => 'width: 10px; height: 10px; border-radius: 5px; flex: none; background: ' + c;
+    const grupos = [
+      { dia: 'Hoje, 8 de outubro', itens: [
+        { descricao: 'Mercado', detalhe: 'Custos Fixos · Alimentação · Débito', valor: '− R$ 214,30', dot: dot(cores.fixos), valorStyle: saida },
+        { descricao: 'Uber', detalhe: 'Conforto · Uber · Cartão Nubank', valor: '− R$ 23,90', dot: dot(cores.conforto), valorStyle: saida }
+      ] },
+      { dia: 'Ontem, 7 de outubro', itens: [
+        { descricao: 'Conta de luz', detalhe: 'Custos Fixos · Luz · Boleto', valor: '− R$ 115,00', dot: dot(cores.fixos), valorStyle: saida },
+        { descricao: 'Jantar', detalhe: 'Prazeres · Restaurante · Cartão BTG', valor: '− R$ 96,00', dot: dot(cores.prazeres), valorStyle: saida },
+        { descricao: 'Curso online, parcela 2 de 6', detalhe: 'Conhecimento · Cartão Nubank', valor: '− R$ 25,00', dot: dot(cores.conhecimento), valorStyle: saida }
+      ] },
+      { dia: '1 de outubro', itens: [
+        { descricao: 'Repasse da empresa', detalhe: 'Entrada · PIX', valor: '+ R$ 8.500,00', dot: dot('#2DD4BF'), valorStyle: entrada }
+      ] }
+    ];
+    return { grupos };
+  }
+}
+</script>
+</body>
+</html>

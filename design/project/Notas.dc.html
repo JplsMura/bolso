@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Empresa: notas</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:hover{color:#E9EEEC}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 900px; display: flex; flex-wrap: wrap; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+
+  <nav aria-label="Principal" style="flex: 1 1 240px; max-width: 280px; box-sizing: border-box; padding: 24px 16px; border-right: 1px solid #2B353A; display: flex; flex-direction: column; gap: 24px">
+    <button aria-label="Trocar de espaço, Empresa" style="height: 48px; padding: 0 14px; border: 1px solid #2B353A; border-radius: 12px; background: #161C1F; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; display: flex; align-items: center; gap: 10px; text-align: left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/></svg>
+      <span style="flex: 1">Empresa</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{menu}}" as="i" hint-placeholder-count="3">
+        <li><a href="Teto.dc.html" style="{{i.style}}">{{i.label}}</a></li>
+      </sc-for>
+    </ul>
+    <a href="Config.dc.html" style="margin-top: auto; font-size: 14px; color: #9BA8A5; text-decoration: none">Configurações</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Notas emitidas</h1>
+      <span style="font-size: 14px; color: #9BA8A5">Envie o PDF da nota do portal do MEI. O sistema lê os dados e você confirma antes de gravar.</span>
+    </header>
+
+    <section aria-label="Enviar nota" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+      <div style="border: 2px dashed #2B353A; border-radius: 16px; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; background: #161C1F">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+        <div style="font-size: 16px; font-weight: 600">Arraste o PDF da nota aqui</div>
+        <div style="font-size: 13px; color: #9BA8A5">ou escolha o arquivo</div>
+        <button style="height: 44px; padding: 0 20px; border: 1px solid #2B353A; border-radius: 12px; background: transparent; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif">Escolher PDF</button>
+      </div>
+
+      <div style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 18px; font-weight: 600">Confirmar dados lidos</h2><span style="font-size: 12px; font-weight: 600; color: #F2C94C">Aguardando você</span></div>
+        <sc-for list="{{campos}}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="{{c.id}}" style="font-size: 12px; color: #9BA8A5">{{c.label}}</label>
+            <input id="{{c.id}}" type="text" value="{{c.valor}}" style="height: 40px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid #2B353A; background: #0E1315; color: #E9EEEC; font: 500 15px 'DM Sans', system-ui, sans-serif">
+          </div>
+        </sc-for>
+        <div style="display: flex; gap: 8px">
+          <button style="flex: 1; height: 44px; border: 0; border-radius: 12px; background: #2DD4BF; color: #04231F; font: 700 15px 'DM Sans', system-ui, sans-serif">Confirmar e gravar</button>
+          <button style="height: 44px; padding: 0 16px; border: 1px solid #2B353A; border-radius: 12px; background: transparent; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif">Descartar</button>
+        </div>
+        <div style="font-size: 12px; color: #9BA8A5; line-height: 1.5">Ao gravar, a nota entra no painel do teto e vira receita para o repasse. Nada é gravado sem a sua confirmação.</div>
+      </div>
+    </section>
+
+    <section aria-label="Notas gravadas" style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 8px 20px">
+      <sc-for list="{{notas}}" as="n" hint-placeholder-count="4">
+        <div style="display: grid; grid-template-columns: 110px 110px minmax(160px, 1fr) 140px 110px; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #1E2629; font-size: 14px">
+          <span style="font-weight: 600">Nota {{n.numero}}</span>
+          <span style="color: #9BA8A5">{{n.data}}</span>
+          <span>{{n.tomador}}</span>
+          <span style="font-variant-numeric: tabular-nums; text-align: right; font-weight: 600">{{n.valor}}</span>
+          <a href="Notas.dc.html" style="color: #6EA8FE; font-size: 13px; text-align: right; text-decoration: none">Abrir PDF</a>
+        </div>
+      </sc-for>
+    </section>
+    <p style="margin: 0; font-size: 13px; color: #9BA8A5">Dados de exemplo; o nome do tomador é um espaço reservado.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ativo = 'display: block; padding: 12px 14px; border-radius: 10px; background: #1E2629; color: #2DD4BF; font-size: 15px; font-weight: 600; text-decoration: none';
+    const normal = 'display: block; padding: 12px 14px; border-radius: 10px; color: #9BA8A5; font-size: 15px; text-decoration: none';
+    const menu = ['Painel do teto', 'Notas', 'Custos e repasse'].map((l) => ({ label: l, style: l === 'Notas' ? ativo : normal }));
+    const campos = [
+      { id: 'f-num', label: 'Número da nota', valor: '000014' },
+      { id: 'f-data', label: 'Data de emissão', valor: '01/10/2026' },
+      { id: 'f-tom', label: 'Tomador', valor: '[Nome do tomador]' },
+      { id: 'f-val', label: 'Valor bruto', valor: 'R$ 7.000,00' },
+      { id: 'f-comp', label: 'Competência', valor: 'Outubro 2026' }
+    ];
+    const notas = [
+      { numero: '000013', data: '01/09/2026', tomador: '[Nome do tomador]', valor: 'R$ 7.000,00' },
+      { numero: '000012', data: '01/08/2026', tomador: '[Nome do tomador]', valor: 'R$ 7.000,00' },
+      { numero: '000011', data: '01/07/2026', tomador: '[Nome do tomador]', valor: 'R$ 7.000,00' },
+      { numero: '000010', data: '01/06/2026', tomador: '[Nome do tomador]', valor: 'R$ 7.000,00' }
+    ];
+    return { menu, campos, notas };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Java
+backend/target/
+backend/build/
+build/
+.gradle/
+*.class
+# Node
+node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.tanstack/
+# Env e segredos
+.env
+.env.*
+!.env.example
+# IDE
+.idea/
+.vscode/
+*.iml
+# Dados locais
+*.sql.gz
+backups/

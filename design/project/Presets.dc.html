@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Presets mensais</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:hover{color:#E9EEEC}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 900px; display: flex; flex-wrap: wrap; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+
+  <nav aria-label="Principal" style="flex: 1 1 240px; max-width: 280px; box-sizing: border-box; padding: 24px 16px; border-right: 1px solid #2B353A; display: flex; flex-direction: column; gap: 24px">
+    <button aria-label="Trocar de espaço, Casa" style="height: 48px; padding: 0 14px; border: 1px solid #2B353A; border-radius: 12px; background: #161C1F; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; display: flex; align-items: center; gap: 10px; text-align: left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span style="flex: 1">Casa</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{menu}}" as="i" hint-placeholder-count="6">
+        <li><a href="InicioDesktop.dc.html" style="{{i.style}}">{{i.label}}</a></li>
+      </sc-for>
+    </ul>
+    <a href="Config.dc.html" style="margin-top: auto; font-size: 14px; color: #9BA8A5; text-decoration: none">Configurações</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Presets</h1>
+        <span style="font-size: 14px; color: #9BA8A5">Custos mensais que quase não mudam. Cada valor vem do mês passado e você ajusta antes de confirmar.</span>
+      </div>
+      <button style="height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #2DD4BF; color: #04231F; font: 700 15px 'DM Sans', system-ui, sans-serif">Usar 5 presets em outubro</button>
+    </header>
+
+    <section aria-label="Presets do mês" style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 8px 20px">
+      <sc-for list="{{presets}}" as="p" hint-placeholder-count="6">
+        <div style="display: grid; grid-template-columns: 32px minmax(160px, 1.4fr) minmax(140px, 1fr) 140px minmax(120px, 0.8fr); align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #1E2629; font-size: 14px">
+          <input type="checkbox" checked="{{p.on}}" aria-label="{{p.aria}}" style="width: 22px; height: 22px; accent-color: #2DD4BF">
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">{{p.nome}}</span><span style="font-size: 12px; color: #9BA8A5">{{p.meta}} · {{p.tag}}</span></span>
+          <span style="font-size: 13px; color: #9BA8A5; font-variant-numeric: tabular-nums">Mês passado {{p.antes}}</span>
+          <input type="text" value="{{p.valor}}" aria-label="{{p.ariaValor}}" style="height: 40px; box-sizing: border-box; padding: 0 12px; text-align: right; border-radius: 10px; border: 1px solid #2B353A; background: #0E1315; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+          <span style="font-size: 13px; color: #9BA8A5">{{p.pagamento}}</span>
+        </div>
+      </sc-for>
+    </section>
+    <p style="margin: 0; font-size: 13px; color: #9BA8A5; max-width: 640px; line-height: 1.5">Nada é lançado sozinho: ao tocar no botão, os itens marcados viram gastos de outubro com o valor que você deixou em cada linha. O repasse da empresa fica nos presets da Empresa. Dados de exemplo.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ativo = 'display: block; padding: 12px 14px; border-radius: 10px; background: #1E2629; color: #2DD4BF; font-size: 15px; font-weight: 600; text-decoration: none';
+    const normal = 'display: block; padding: 12px 14px; border-radius: 10px; color: #9BA8A5; font-size: 15px; text-decoration: none';
+    const menu = ['Início', 'Lançamentos', 'Presets', 'Cartões', 'Mês', 'Tags'].map((l) => ({ label: l, style: l === 'Presets' ? ativo : normal }));
+    const brl = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const presets = [
+      { nome: 'Conta de luz', meta: 'Custos Fixos', tag: 'Luz', antes: 110, valor: 115, pagamento: 'Boleto' },
+      { nome: 'Conta de água', meta: 'Custos Fixos', tag: 'Água', antes: 78.4, valor: 78.4, pagamento: 'Boleto' },
+      { nome: 'Internet', meta: 'Custos Fixos', tag: 'Internet', antes: 119.9, valor: 119.9, pagamento: 'Cartão Nubank' },
+      { nome: 'Telefone', meta: 'Custos Fixos', tag: 'Telefone', antes: 64.9, valor: 64.9, pagamento: 'Cartão Nubank' },
+      { nome: 'Assinatura de streaming', meta: 'Prazeres', tag: 'Streaming', antes: 39.9, valor: 39.9, pagamento: 'Cartão Nubank' }
+    ].map((p) => ({
+      nome: p.nome, meta: p.meta, tag: p.tag, pagamento: p.pagamento, on: true,
+      aria: 'Usar o preset ' + p.nome,
+      ariaValor: 'Valor de ' + p.nome,
+      antes: brl(p.antes), valor: brl(p.valor)
+    }));
+    return { menu, presets };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Empresa: custos e repasse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:hover{color:#E9EEEC}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 900px; display: flex; flex-wrap: wrap; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+
+  <nav aria-label="Principal" style="flex: 1 1 240px; max-width: 280px; box-sizing: border-box; padding: 24px 16px; border-right: 1px solid #2B353A; display: flex; flex-direction: column; gap: 24px">
+    <button aria-label="Trocar de espaço, Empresa" style="height: 48px; padding: 0 14px; border: 1px solid #2B353A; border-radius: 12px; background: #161C1F; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; display: flex; align-items: center; gap: 10px; text-align: left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/></svg>
+      <span style="flex: 1">Empresa</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{menu}}" as="i" hint-placeholder-count="3">
+        <li><a href="Teto.dc.html" style="{{i.style}}">{{i.label}}</a></li>
+      </sc-for>
+    </ul>
+    <a href="Config.dc.html" style="margin-top: auto; font-size: 14px; color: #9BA8A5; text-decoration: none">Configurações</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Custos e repasse</h1>
+      <span style="font-size: 14px; color: #9BA8A5">O que sai da empresa a cada mês e quanto vai para a Casa.</span>
+    </header>
+
+    <section aria-label="Fluxo do mês" style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 4px">
+      <h2 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600">Outubro 2026</h2>
+      <sc-for list="{{linhas}}" as="l" hint-placeholder-count="4">
+        <div style="display: grid; grid-template-columns: minmax(180px, 1fr) minmax(120px, 0.6fr) 160px; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid #1E2629; font-size: 15px">
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{l.nome}}</span><span style="font-size: 12px; color: #9BA8A5">{{l.nota}}</span></span>
+          <span style="font-size: 13px; color: #9BA8A5">{{l.pagamento}}</span>
+          <input type="text" value="{{l.valor}}" aria-label="{{l.aria}}" style="{{l.style}}">
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Repasse" style="background: #161C1F; border: 1px solid #2B353A; border-left: 4px solid #2DD4BF; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 15px; font-weight: 600">O repasse entra na Casa como receita</div>
+      <div style="font-size: 14px; color: #9BA8A5; line-height: 1.5">Ao confirmar o repasse, o sistema cria a entrada de R$ 6.000,00 no espaço Casa em 1º de outubro. O DAS fica como custo da Empresa e não aparece no orçamento da Casa.</div>
+    </section>
+
+    <section aria-label="A partir de 2027" style="background: #161C1F; border: 1px solid #2B353A; border-left: 4px solid #6EA8FE; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 15px; font-weight: 600; color: #6EA8FE">A partir de janeiro de 2027</div>
+      <div style="font-size: 14px; color: #9BA8A5; line-height: 1.5">Com a mudança para ME entram contador, o imposto do Simples e o INSS sobre o pró-labore. O DAS do MEI deixa de existir. Essas linhas aparecem aqui quando você ativar o novo regime.</div>
+    </section>
+    <p style="margin: 0; font-size: 13px; color: #9BA8A5">Dados de exemplo, inclusive o valor do DAS.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ativo = 'display: block; padding: 12px 14px; border-radius: 10px; background: #1E2629; color: #2DD4BF; font-size: 15px; font-weight: 600; text-decoration: none';
+    const normal = 'display: block; padding: 12px 14px; border-radius: 10px; color: #9BA8A5; font-size: 15px; text-decoration: none';
+    const menu = ['Painel do teto', 'Notas', 'Custos e repasse'].map((l) => ({ label: l, style: l === 'Custos e repasse' ? ativo : normal }));
+    const campo = 'height: 40px; box-sizing: border-box; padding: 0 12px; text-align: right; border-radius: 10px; border: 1px solid #2B353A; background: #0E1315; color: #E9EEEC; font: 600 15px "DM Sans", system-ui, sans-serif; font-variant-numeric: tabular-nums';
+    const fixo = 'height: 40px; box-sizing: border-box; padding: 0 12px; text-align: right; border: 0; background: transparent; color: #E9EEEC; font: 700 15px "DM Sans", system-ui, sans-serif; font-variant-numeric: tabular-nums';
+    const linhas = [
+      { nome: 'Nota emitida', nota: 'Nota 000014, 01/10/2026', pagamento: 'Recebida na conta PJ', valor: '+ R$ 7.000,00', aria: 'Valor da nota', style: fixo },
+      { nome: 'DAS do MEI', nota: 'Preset mensal, vence todo dia 20', pagamento: 'Paga pela conta PJ', valor: '− R$ 80,00', aria: 'Valor do DAS', style: campo },
+      { nome: 'Repasse para a Casa', nota: 'Preset mensal de valor fixo', pagamento: 'PIX da conta PJ para a pessoal', valor: '− R$ 6.000,00', aria: 'Valor do repasse', style: campo },
+      { nome: 'Fica na conta da empresa', nota: 'Diferença do mês', pagamento: '', valor: 'R$ 920,00', aria: 'Resultado do mês', style: fixo }
+    ];
+    return { menu, linhas };
+  }
+}
+</script>
+</body>
+</html>

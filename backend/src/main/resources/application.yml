@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: bolso
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bolso}
+    username: ${DB_USER:bolso}
+    password: ${DB_PASSWORD:bolso}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # o schema é só do Flyway
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs

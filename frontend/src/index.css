@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+/* Tokens do design (docs/CONTEXTO.md). Nomes no padrão do shadcn/ui para os componentes caírem certos. */
+@theme {
+  --font-sans: 'DM Sans Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: #0e1315;
+  --color-card: #161c1f; /* superfície */
+  --color-popover: #1e2629; /* elevado */
+  --color-muted: #1e2629;
+  --color-border: #2b353a;
+  --color-input: #2b353a;
+  --color-foreground: #e9eeec;
+  --color-muted-foreground: #9ba8a5;
+  --color-primary: #2dd4bf;
+  --color-primary-foreground: #04231f;
+  --color-ring: #2dd4bf;
+  --color-warning: #f2c94c;
+  --color-destructive: #f27a72;
+  --color-info: #6ea8fe;
+
+  /* As seis metas */
+  --color-meta-custos-fixos: #6ea8fe;
+  --color-meta-conforto: #a3e06b;
+  --color-meta-metas: #c79bff;
+  --color-meta-prazeres: #ff9f5a;
+  --color-meta-liberdade: #ff8fb1;
+  --color-meta-conhecimento: #5cd6e8;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+}

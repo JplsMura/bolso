@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Visual base</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 960px; height: 900px; box-sizing: border-box; padding: 48px; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 32px">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <h1 style="margin: 0; font-size: 36px; font-weight: 700; letter-spacing: -0.5px">Visual base</h1>
+    <p style="margin: 0; font-size: 16px; color: #9BA8A5; max-width: 640px; line-height: 1.5">Modo escuro como principal, sóbrio e limpo. A cor só aparece para dar significado: uma cor por meta e três para estado (atenção, estouro, informação).</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">Base (escuro)</h2>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px">
+      <sc-for list="{{base}}" as="c" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="{{c.style}}"></div>
+          <div style="font-size: 14px; font-weight: 600">{{c.name}}</div>
+          <div style="font-size: 12px; color: #9BA8A5">{{c.hex}} · {{c.use}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">As seis metas (dados de exemplo)</h2>
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px">
+      <sc-for list="{{metas}}" as="m" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="{{m.style}}"></div>
+          <div style="font-size: 13px; font-weight: 600">{{m.name}}</div>
+          <div style="font-size: 12px; color: #9BA8A5">{{m.hex}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">Estados</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+      <sc-for list="{{estados}}" as="e" hint-placeholder-count="3">
+        <div style="background: #161C1F; border: 1px solid #2B353A; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+          <div style="{{e.style}}">{{e.label}}</div>
+          <div style="font-size: 12px; color: #9BA8A5">{{e.hex}} · {{e.use}}</div>
+        </div>
+      </sc-for>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #9BA8A5">Estado nunca depende só da cor: sempre vem com texto e ícone.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">Tipografia</h2>
+      <div style="font-size: 32px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums">R$ 8.500,00</div>
+      <div style="font-size: 20px; font-weight: 600">Título de seção</div>
+      <div style="font-size: 15px; font-weight: 400">Texto de lista e formulário</div>
+      <div style="font-size: 13px; font-weight: 400; color: #9BA8A5">Texto de apoio e legendas</div>
+      <p style="margin: 0; font-size: 12px; color: #9BA8A5">DM Sans. Valores em dinheiro usam algarismos de largura fixa para alinhar colunas.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">Componentes</h2>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+        <button style="height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #2DD4BF; color: #04231F; font: 600 15px 'DM Sans', system-ui, sans-serif">Salvar gasto</button>
+        <button style="height: 44px; padding: 0 20px; border: 1px solid #2B353A; border-radius: 12px; background: transparent; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif">Cancelar</button>
+        <span style="height: 32px; padding: 0 12px; border-radius: 16px; background: #1E2629; color: #E9EEEC; font-size: 13px; display: inline-flex; align-items: center">Luz</span>
+        <span style="height: 32px; padding: 0 12px; border-radius: 16px; background: #1E2629; color: #E9EEEC; font-size: 13px; display: inline-flex; align-items: center">Nubank</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; justify-content: space-between; font-size: 13px"><span>Prazeres</span><span style="color: #9BA8A5">R$ 510,00 de R$ 850,00</span></div>
+        <div style="height: 8px; border-radius: 4px; background: #1E2629; overflow: hidden"><div style="width: 60%; height: 8px; background: #FF9F5A"></div></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="campo" style="font-size: 13px; color: #9BA8A5">Descrição</label>
+        <input id="campo" type="text" value="Conta de luz" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto">
+    <h2 style="margin: 0; font-size: 14px; font-weight: 600; color: #9BA8A5; text-transform: uppercase; letter-spacing: 1px">Modo claro (derivado)</h2>
+    <div style="display: flex; gap: 12px; align-items: center; font-size: 13px; color: #9BA8A5">
+      <span style="width: 24px; height: 24px; border-radius: 6px; background: #F6F8F7; border: 1px solid #2B353A"></span>#F6F8F7 fundo
+      <span style="width: 24px; height: 24px; border-radius: 6px; background: #FFFFFF; border: 1px solid #2B353A"></span>#FFFFFF superfície
+      <span style="width: 24px; height: 24px; border-radius: 6px; background: #14201C"></span>#14201C texto
+      <span style="width: 24px; height: 24px; border-radius: 6px; background: #0B7F72"></span>#0B7F72 principal
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = (hex, extra) => 'height: 56px; border-radius: 12px; background: ' + hex + ';' + (extra || '');
+    return {
+      base: [
+        { name: 'Fundo', hex: '#0E1315', use: 'página', style: sw('#0E1315', 'border: 1px solid #2B353A;') },
+        { name: 'Superfície', hex: '#161C1F', use: 'cartões', style: sw('#161C1F', 'border: 1px solid #2B353A;') },
+        { name: 'Elevada', hex: '#1E2629', use: 'campos, chips', style: sw('#1E2629') },
+        { name: 'Texto', hex: '#E9EEEC', use: 'principal', style: sw('#E9EEEC') },
+        { name: 'Principal', hex: '#2DD4BF', use: 'ação, destaque', style: sw('#2DD4BF') }
+      ],
+      metas: [
+        { name: 'Custos Fixos', hex: '#6EA8FE', style: sw('#6EA8FE') },
+        { name: 'Conforto', hex: '#A3E06B', style: sw('#A3E06B') },
+        { name: 'Metas', hex: '#C79BFF', style: sw('#C79BFF') },
+        { name: 'Prazeres', hex: '#FF9F5A', style: sw('#FF9F5A') },
+        { name: 'Liberdade Financeira', hex: '#FF8FB1', style: sw('#FF8FB1') },
+        { name: 'Conhecimento', hex: '#5CD6E8', style: sw('#5CD6E8') }
+      ],
+      estados: [
+        { label: 'Quase no limite', hex: '#F2C94C', use: 'acima de 80% da meta', style: 'font-size: 15px; font-weight: 600; color: #F2C94C' },
+        { label: 'Estourou', hex: '#F27A72', use: 'acima de 100%', style: 'font-size: 15px; font-weight: 600; color: #F27A72' },
+        { label: 'Fatura fechada', hex: '#6EA8FE', use: 'informação', style: 'font-size: 15px; font-weight: 600; color: #6EA8FE' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

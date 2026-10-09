@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Início no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+  <div style="padding: 16px 16px 0 16px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <button aria-label="Trocar de espaço, Casa" style="height: 44px; padding: 0 14px; border: 1px solid #2B353A; border-radius: 22px; background: #161C1F; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DD4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        Casa
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div style="display: flex; align-items: center; gap: 4px">
+        <button aria-label="Mês anterior" style="width: 44px; height: 44px; border: 0; background: transparent; color: #9BA8A5; display: inline-flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <span style="font-size: 15px; font-weight: 600">Outubro 2026</span>
+        <button aria-label="Próximo mês" style="width: 44px; height: 44px; border: 0; background: transparent; color: #9BA8A5; display: inline-flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+
+    <div style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 13px; color: #9BA8A5">Sobra do mês</div>
+      <div style="font-size: 32px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums">R$ 964,50</div>
+      <div style="height: 8px; border-radius: 4px; background: #1E2629; overflow: hidden"><div style="width: 89%; height: 8px; background: #2DD4BF"></div></div>
+      <div style="font-size: 12px; color: #9BA8A5; font-variant-numeric: tabular-nums">Gasto R$ 7.535,50 de R$ 8.500,00</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{metas}}" as="m" hint-placeholder-count="6">
+        <div style="background: #161C1F; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 14px">
+            <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600"><span style="{{m.dot}}"></span>{{m.name}} <span style="color: #9BA8A5; font-weight: 400">{{m.percent}}</span></span>
+            <span style="font-variant-numeric: tabular-nums; color: #9BA8A5; font-size: 12px">{{m.values}}</span>
+          </div>
+          <div style="height: 6px; border-radius: 3px; background: #1E2629; overflow: hidden"><div style="{{m.bar}}"></div></div>
+          <sc-if value="{{m.status}}" hint-placeholder-val="{{false}}">
+            <div style="{{m.statusStyle}}">{{m.status}}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; background: #161C1F; border-top: 1px solid #2B353A; display: flex; padding: 0 8px">
+    <a href="InicioCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #2DD4BF; font-size: 12px; font-weight: 600; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+    <a href="LancamentosCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>Lançamentos</a>
+    <a href="InicioCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Cartões</a>
+    <a href="InicioCelular.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9BA8A5; font-size: 12px; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Mês</a>
+  </div>
+
+  <a href="NovoGasto.dc.html" aria-label="Novo gasto" style="position: absolute; right: 16px; bottom: 92px; width: 56px; height: 56px; border-radius: 28px; background: #2DD4BF; color: #04231F; display: flex; align-items: center; justify-content: center; text-decoration: none"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const brl = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const defs = [
+      { name: 'Custos Fixos', pct: 35, budget: 2975.00, spent: 2410.50, color: '#6EA8FE' },
+      { name: 'Conforto', pct: 15, budget: 1275.00, spent: 980.00, color: '#A3E06B' },
+      { name: 'Metas', pct: 10, budget: 850.00, spent: 850.00, color: '#C79BFF' },
+      { name: 'Prazeres', pct: 10, budget: 850.00, spent: 1020.00, color: '#FF9F5A' },
+      { name: 'Liberdade Financeira', pct: 25, budget: 2125.00, spent: 2125.00, color: '#FF8FB1' },
+      { name: 'Conhecimento', pct: 5, budget: 425.00, spent: 150.00, color: '#5CD6E8' }
+    ];
+    const metas = defs.map((d) => {
+      const r = d.spent / d.budget;
+      let status = '';
+      let sc = '';
+      let barColor = d.color;
+      if (r > 1) { status = 'Estourou em ' + brl(d.spent - d.budget); sc = 'font-size: 12px; font-weight: 600; color: #F27A72'; barColor = '#F27A72'; }
+      else if (r >= 1) { status = 'No limite'; sc = 'font-size: 12px; font-weight: 600; color: #F2C94C'; }
+      else if (r >= 0.8) { status = 'Quase no limite'; sc = 'font-size: 12px; font-weight: 600; color: #F2C94C'; }
+      return {
+        name: d.name,
+        percent: d.pct + '%',
+        values: brl(d.spent) + ' de ' + brl(d.budget),
+        dot: 'width: 10px; height: 10px; border-radius: 5px; background: ' + d.color,
+        bar: 'height: 6px; width: ' + Math.min(r, 1) * 100 + '%; background: ' + barColor,
+        status: status,
+        statusStyle: sc
+      };
+    });
+    return { metas };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+# Sobe tudo: docker compose up --build   (copie .env.example para .env antes)
+name: bolso
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bolso}
+      POSTGRES_USER: ${POSTGRES_USER:-bolso}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      TZ: UTC
+    ports:
+      - "127.0.0.1:5432:5432" # só nesta máquina
+    volumes:
+      - db-data:/var/lib/postgresql # PostgreSQL 18+ guarda em /var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-bolso}
+      DB_USER: ${POSTGRES_USER:-bolso}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  backup:
+    image: postgres:18-alpine
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-bolso}
+      PGUSER: ${POSTGRES_USER:-bolso}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_RETENCAO_DIAS: ${BACKUP_RETENCAO_DIAS:-30}
+      TZ: America/Sao_Paulo
+    volumes:
+      - ./backups:/backups
+      - ./infra/backup/backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "/backup.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db-data:

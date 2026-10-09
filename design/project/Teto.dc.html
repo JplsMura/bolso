@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Empresa: teto do MEI</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a:hover{color:#E9EEEC}
+</style>
+</helmet>
+<div style="box-sizing: border-box; min-height: 900px; display: flex; flex-wrap: wrap; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+
+  <nav aria-label="Principal" style="flex: 1 1 240px; max-width: 280px; box-sizing: border-box; padding: 24px 16px; border-right: 1px solid #2B353A; display: flex; flex-direction: column; gap: 24px">
+    <button aria-label="Trocar de espaço, Empresa" style="height: 48px; padding: 0 14px; border: 1px solid #2B353A; border-radius: 12px; background: #161C1F; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; display: flex; align-items: center; gap: 10px; text-align: left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/></svg>
+      <span style="flex: 1">Empresa</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9BA8A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px">
+      <sc-for list="{{menu}}" as="i" hint-placeholder-count="3">
+        <li><a href="Teto.dc.html" style="{{i.style}}">{{i.label}}</a></li>
+      </sc-for>
+    </ul>
+    <a href="Config.dc.html" style="margin-top: auto; font-size: 14px; color: #9BA8A5; text-decoration: none">Configurações</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+    <header style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">Teto do MEI</h1>
+      <span style="font-size: 15px; color: #9BA8A5">Faturamento do ano pela data de emissão das notas</span>
+    </header>
+
+    <section aria-label="Faturamento no ano" style="background: #161C1F; border: 1px solid #2B353A; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+        <div style="font-size: 36px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums">R$ 91.000,00</div>
+        <div style="font-size: 14px; color: #9BA8A5">faturado no ano, sem a 14ª nota</div>
+      </div>
+
+      <div style="position: relative; padding-top: 28px">
+        <div style="position: absolute; top: 0; left: 81%; transform: translateX(-50%); font-size: 12px; color: #9BA8A5; white-space: nowrap">Teto R$ 81.000</div>
+        <div style="position: absolute; top: 0; left: 97.2%; transform: translateX(-100%); font-size: 12px; color: #9BA8A5; white-space: nowrap">Tolerância R$ 97.200</div>
+        <div style="display: flex; height: 16px; border-radius: 8px; overflow: hidden; gap: 2px" role="img" aria-label="Faturamento de 91 mil reais, entre o teto de 81 mil e a tolerância de 97 mil e 200">
+          <div style="width: 81%; background: #1E2629"></div>
+          <div style="width: 16.2%; background: #3A3320"></div>
+          <div style="width: 2.8%; background: #3A2220"></div>
+        </div>
+        <div style="position: absolute; left: 0; width: 91%; bottom: 0; height: 16px; border-radius: 8px 0 0 8px; background: #F2C94C; opacity: 0.9"></div>
+        <div style="position: absolute; left: 91%; bottom: -4px; width: 3px; height: 24px; background: #E9EEEC; border-radius: 2px"></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+        <sc-for list="{{numeros}}" as="n" hint-placeholder-count="3">
+          <div style="background: #0E1315; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; color: #9BA8A5">{{n.label}}</span>
+            <span style="{{n.style}}">{{n.valor}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Situação" style="background: #161C1F; border: 1px solid #2B353A; border-left: 4px solid #F2C94C; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 15px; font-weight: 600; color: #F2C94C; display: inline-flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>Acima do teto, dentro da tolerância</div>
+      <div style="font-size: 14px; color: #E9EEEC; line-height: 1.5">Você segue como MEI até 31/12, paga o DAS complementar e passa a ME em 1º de janeiro de 2027.</div>
+    </section>
+
+    <section aria-label="Simulador de nova nota" style="background: #161C1F; border: 1px solid #2B353A; border-left: 4px solid #F27A72; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px">
+      <div style="font-size: 15px; font-weight: 600; color: #F27A72; display: inline-flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16h.01"/></svg>Se você emitir mais uma nota em 2026</div>
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="sim" style="font-size: 13px; color: #9BA8A5">Valor da nota</label>
+          <input id="sim" type="text" value="R$ 7.000,00" style="width: 180px; height: 44px; box-sizing: border-box; padding: 0 14px; text-align: right; border-radius: 12px; border: 1px solid #2B353A; background: #0E1315; color: #E9EEEC; font: 600 15px 'DM Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+        </div>
+        <div style="font-size: 14px; line-height: 1.5; flex: 1 1 280px">Total do ano ficaria em <strong style="font-variant-numeric: tabular-nums">R$ 98.000,00</strong>, acima da tolerância de R$ 97.200. Isso gera desenquadramento retroativo, com juros e multa. Emita essa nota só em janeiro de 2027.</div>
+      </div>
+    </section>
+    <p style="margin: 0; font-size: 13px; color: #9BA8A5">Valores fictícios, só para exemplo. O painel soma as notas emitidas a cada nota cadastrada, sem guardar saldo.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ativo = 'display: block; padding: 12px 14px; border-radius: 10px; background: #1E2629; color: #2DD4BF; font-size: 15px; font-weight: 600; text-decoration: none';
+    const normal = 'display: block; padding: 12px 14px; border-radius: 10px; color: #9BA8A5; font-size: 15px; text-decoration: none';
+    const menu = ['Painel do teto', 'Notas', 'Custos e repasse'].map((l) => ({ label: l, style: l === 'Painel do teto' ? ativo : normal }));
+    const base = 'font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums';
+    const numeros = [
+      { label: 'Acima do teto de R$ 81.000', valor: 'R$ 10.000,00', style: base + '; color: #F2C94C' },
+      { label: 'Falta para a tolerância', valor: 'R$ 6.200,00', style: base },
+      { label: 'Da tolerância de R$ 97.200 já usada', valor: '93,6%', style: base }
+    ];
+    return { menu, numeros };
+  }
+}
+</script>
+</body>
+</html>

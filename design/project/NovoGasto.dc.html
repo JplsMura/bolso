@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Novo gasto no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #0E1315; color: #E9EEEC; font-family: 'DM Sans', system-ui, sans-serif">
+  <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a href="LancamentosCelular.dc.html" aria-label="Fechar" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: #9BA8A5; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+      <h1 style="margin: 0; font-size: 18px; font-weight: 700">Novo gasto</h1>
+      <span style="width: 44px"></span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px; align-items: center">
+      <label for="valor" style="font-size: 13px; color: #9BA8A5">Valor</label>
+      <input id="valor" type="text" value="R$ 110,00" style="width: 100%; box-sizing: border-box; text-align: center; border: 0; background: transparent; color: #E9EEEC; font: 700 40px 'DM Sans', system-ui, sans-serif; letter-spacing: -0.5px; font-variant-numeric: tabular-nums">
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="desc" style="font-size: 13px; color: #9BA8A5">Descrição</label>
+      <input id="desc" type="text" value="Conta de luz" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; color: #9BA8A5">Meta</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{metas}}" as="m" hint-placeholder-count="6">
+          <button aria-pressed="{{m.on}}" style="{{m.style}}">{{m.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; color: #9BA8A5">Tag</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{tags}}" as="t" hint-placeholder-count="3">
+          <button aria-pressed="{{t.on}}" style="{{t.style}}">{{t.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 13px; color: #9BA8A5">Forma de pagamento</span>
+      <div style="display: flex; background: #161C1F; border: 1px solid #2B353A; border-radius: 12px; padding: 3px; gap: 2px">
+        <sc-for list="{{pagamentos}}" as="p" hint-placeholder-count="5">
+          <button aria-pressed="{{p.on}}" style="{{p.style}}">{{p.name}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="cartao" style="font-size: 13px; color: #9BA8A5">Cartão</label>
+      <div style="position: relative">
+        <select id="cartao" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+          <option>Nubank · disponível R$ 3.240,00</option>
+          <option>BTG · disponível R$ 5.100,00</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+        <label for="data" style="font-size: 13px; color: #9BA8A5">Data</label>
+        <input id="data" type="text" value="Hoje, 8 out" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+        <label for="parcelas" style="font-size: 13px; color: #9BA8A5">Parcelas</label>
+        <input id="parcelas" type="text" value="1x" style="height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2B353A; background: #161C1F; color: #E9EEEC; font: 400 15px 'DM Sans', system-ui, sans-serif">
+      </div>
+    </div>
+
+    <div style="font-size: 13px; color: #6EA8FE">Entra na fatura de novembro do Nubank.</div>
+
+    <a href="LancamentosCelular.dc.html" style="height: 52px; border-radius: 14px; background: #2DD4BF; color: #04231F; font: 700 16px 'DM Sans', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-decoration: none">Salvar gasto</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const chip = (on, cor) => on
+      ? 'height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid ' + cor + '; background: #1E2629; color: #E9EEEC; font: 600 13px "DM Sans", system-ui, sans-serif'
+      : 'height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid transparent; background: #1E2629; color: #9BA8A5; font: 500 13px "DM Sans", system-ui, sans-serif';
+    const metas = [
+      { name: 'Custos Fixos', cor: '#6EA8FE', on: true },
+      { name: 'Conforto', cor: '#A3E06B', on: false },
+      { name: 'Metas', cor: '#C79BFF', on: false },
+      { name: 'Prazeres', cor: '#FF9F5A', on: false },
+      { name: 'Liberdade Financeira', cor: '#FF8FB1', on: false },
+      { name: 'Conhecimento', cor: '#5CD6E8', on: false }
+    ].map((m) => ({ name: m.name, on: m.on, style: chip(m.on, m.cor) }));
+    const tags = [
+      { name: 'Luz', on: true },
+      { name: 'Água', on: false },
+      { name: 'Internet', on: false },
+      { name: '+ Nova tag', on: false }
+    ].map((t) => ({ name: t.name, on: t.on, style: chip(t.on, '#2DD4BF') }));
+    const pagamentos = [
+      { name: 'Cartão', on: true },
+      { name: 'PIX', on: false },
+      { name: 'Débito', on: false },
+      { name: 'Dinheiro', on: false },
+      { name: 'Boleto', on: false }
+    ].map((p) => ({
+      name: p.name,
+      on: p.on,
+      style: p.on
+        ? 'flex: 1; height: 38px; border: 0; border-radius: 9px; background: #2DD4BF; color: #04231F; font: 700 13px "DM Sans", system-ui, sans-serif'
+        : 'flex: 1; height: 38px; border: 0; border-radius: 9px; background: transparent; color: #9BA8A5; font: 500 13px "DM Sans", system-ui, sans-serif'
+    }));
+    return { metas, tags, pagamentos };
+  }
+}
+</script>
+</body>
+</html>
