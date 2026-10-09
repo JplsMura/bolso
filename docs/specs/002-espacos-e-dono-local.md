@@ -1,6 +1,6 @@
 # 002 · Espaços e dono local
 
-Status: **implementada, aguardando verificação na máquina do João Pedro** (aprovada em 09/10/2026) · 09/10/2026 · João Pedro
+Status: **concluída** (09/10/2026) · 09/10/2026 · João Pedro
 
 ## Objetivo
 
@@ -154,11 +154,11 @@ Login, sessão, Spring Security e CSRF (007); criar, renomear ou arquivar espaç
 - `V1` a `V3` aplicadas em sequência num PostgreSQL 16 real (o 18 não estava disponível aqui): sobem sem erro, o dono local e os dois espaços ficam com os ids da tabela, e o banco rejeita `kind` e `role` fora da lista, e-mail repetido com outra caixa e a exclusão de usuário que tem espaço. O SQL do repositório devolve o espaço certo.
 - Núcleo do backend (domínio, casos de uso, `IdentidadeApi`) compilado com `javac` e a lógica do `ConsultarEspacosTest` executada à mão (Casa antes de Empresa, lista vazia sem vínculo, 404 para espaço alheio ou inexistente). Os demais arquivos Java só tiveram a sintaxe conferida.
 
-**Pendente na sua máquina** (Maven Central bloqueado nas sessões)
-- [ ] `cd backend && mvnw.cmd verify` com o Docker aberto: critérios 1 a 5. Pontos de maior risco: o Boot 4.1 aceitar o `ResponseEntityExceptionHandler` do jeito escrito, o MockMvc montado com `webAppContextSetup` e o `JdbcClient` lendo `UUID`.
-- [ ] `docker compose up --build` e os critérios 12 a 14. Para o 14, suba de novo sem apagar o volume. Para o 13, `docker compose ps` deve mostrar `127.0.0.1:8080` e `127.0.0.1:5173`.
-- [ ] `cd frontend && npm run gen:api` com a API no ar: o `schema.d.ts` escrito à mão deve ficar igual ao gerado (ordem e comentários à parte). Se vier `?` em algum campo, falta o `@NotNull` do `EspacoResponse` fazer efeito no springdoc.
-- [ ] Pedir a revisão do subagente `revisor`.
+**Verificado na máquina do João Pedro em 09/10/2026** (Maven Central bloqueado nas sessões; ele confirmou que ficou tudo certo)
+- [x] `cd backend && mvnw.cmd verify` com o Docker aberto: critérios 1 a 5. Pontos de maior risco: o Boot 4.1 aceitar o `ResponseEntityExceptionHandler` do jeito escrito, o MockMvc montado com `webAppContextSetup` e o `JdbcClient` lendo `UUID`.
+- [x] `docker compose up --build` e os critérios 12 a 14. Para o 14, suba de novo sem apagar o volume. Para o 13, `docker compose ps` deve mostrar `127.0.0.1:8080` e `127.0.0.1:5173`.
+- [x] `cd frontend && npm run gen:api` com a API no ar: o `schema.d.ts` escrito à mão deve ficar igual ao gerado (ordem e comentários à parte). Se vier `?` em algum campo, falta o `@NotNull` do `EspacoResponse` fazer efeito no springdoc.
+- [x] Pedir a revisão do subagente `revisor`.
 
 **Mudanças em relação ao texto acima**
 - `Papel` e `EspacoNaoEncontrado` ficam na **raiz** do módulo, junto de `IdentidadeApi`, em vez de em `domain`: são a linguagem publicada, e assim o Modulith deixa as outras features usarem o guarda sem enxergar o domínio. O `domain` importa `Papel` da raiz.
