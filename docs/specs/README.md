@@ -6,8 +6,9 @@ Modelo: objetivo, requisitos (RF) cobertos, regras de negócio, contrato da API,
 
 Ordem:
 1. 001-base-do-projeto
-2. 002-identidade
+2. 002-espacos-e-dono-local (sem login)
 3. 003-lancamentos
 4. 004-cartoes
 5. 005-orcamento
 6. 006-faturamento-pj
+7. 007-login (código por e-mail + Google), por último

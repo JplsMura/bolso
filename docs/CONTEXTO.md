@@ -45,17 +45,21 @@ Metas: Custos Fixos #6EA8FE, Conforto #A3E06B, Metas #C79BFF, Prazeres #FF9F5A, 
 - IA no produto: leitor de PDF por regras primeiro, IA só como fallback com confirmação; sugestão de categoria por regras; sem RAG no MVP; dados mínimos, desligado por padrão.
 
 ## Ordem das features
-1. Base do projeto (Docker, Boot 4.1 + checagem Modulith, React/Vite, CLAUDE.md, testes de arquitetura)
-2. Identidade (login por código + Google, espaços)
+1. Base do projeto (Docker, Boot 4.1 + checagem Modulith, React/Vite, CLAUDE.md, testes de arquitetura): concluída
+2. Espaços e dono local (Casa e Empresa criados ao subir, usuário local fixo como dono, seletor ligado à API, portas só em 127.0.0.1), sem login
 3. Lançamentos
 4. Cartões
 5. Orçamento (metas, fechamento)
 6. Faturamento PJ
+7. Login (código por e-mail + Google), por último: só faz falta quando o app sair do computador do João Pedro. Como os dados já pertencem a um espaço e a um dono, ligar o login não muda as tabelas.
 
 ## Pendências
 - ~~Confirmar compatibilidade Spring Modulith 2.1.1 com Boot 4.1 e Testcontainers~~: confirmada na 001 (`mvnw verify` verde).
 - Confirmar busca por texto no MVP.
 - Telas de estado vazio e versão clara (referência).
+- Decisões para a 007 (Login), adiada para o fim em 09/10/2026:
+  - [x] E-mail do código de login: Mailpit no compose em desenvolvimento; Resend depois, em produção. O envio fica atrás de uma porta de saída, então trocar de provedor é só criar outro adaptador.
+  - [ ] Login com Google: projeto no Google Cloud e Client ID.
 
 ## Onde está o resto
 Documentos no app (Requisitos, Modelagem do banco, Arquitetura do back-end e IA, Arquitetura do front-end e design) e o canvas "Sistema de finanças". Cópias em Markdown vão em `docs/` e as telas em `design/`.
