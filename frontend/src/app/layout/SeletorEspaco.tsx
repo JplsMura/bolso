@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router'
 import { useId, useRef, useState } from 'react'
 import { cn } from '@/shared/lib/cn'
-import { ESPACOS, type Espaco, ROTULO_ESPACO } from '../espacos'
+import { ESPACOS, type Espaco } from '../espacos'
 
-type Props = { espaco: Espaco; className?: string }
+type Props = { espaco: Espaco; nomes: Record<Espaco, string>; className?: string }
 
-/** Botão que abre a lista de espaços. Trocar de espaço é trocar de URL. */
-export function SeletorEspaco({ espaco, className }: Props) {
+/** Botão que abre a lista de espaços. Trocar de espaço é trocar de URL; o nome vem da API. */
+export function SeletorEspaco({ espaco, nomes, className }: Props) {
   const [aberto, setAberto] = useState(false)
   const listaId = useId()
   const botao = useRef<HTMLButtonElement>(null)
@@ -30,14 +30,14 @@ export function SeletorEspaco({ espaco, className }: Props) {
       <button
         ref={botao}
         type="button"
-        aria-label={`Trocar de espaço, ${ROTULO_ESPACO[espaco]}`}
+        aria-label={`Trocar de espaço, ${nomes[espaco]}`}
         aria-expanded={aberto}
         aria-controls={listaId}
         onClick={() => setAberto((v) => !v)}
         className="flex h-12 w-full items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 text-left text-[15px] font-semibold"
       >
         <IconeEspaco espaco={espaco} />
-        <span className="flex-1">{ROTULO_ESPACO[espaco]}</span>
+        <span className="flex-1">{nomes[espaco]}</span>
         <svg
           width="14"
           height="14"
@@ -70,7 +70,7 @@ export function SeletorEspaco({ espaco, className }: Props) {
                 )}
               >
                 <IconeEspaco espaco={e} />
-                {ROTULO_ESPACO[e]}
+                {nomes[e]}
               </Link>
             </li>
           ))}

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ROTULO_ESPACO } from '@/app/espacos'
+import { useEspacoAtual } from '@/shared/lib/espacoAtual'
 import { EmConstrucao } from '@/shared/ui/EmConstrucao'
 
 export const Route = createFileRoute('/$espaco/')({
@@ -8,11 +8,12 @@ export const Route = createFileRoute('/$espaco/')({
 
 function Inicio() {
   const { espaco } = Route.useParams()
+  const { nome } = useEspacoAtual()
   return (
     <>
       <header className="flex flex-col gap-1">
         <h1 className="text-[28px] font-bold tracking-tight">Início</h1>
-        <p className="text-[15px] text-muted-foreground">{ROTULO_ESPACO[espaco]}</p>
+        <p className="text-[15px] text-muted-foreground">{nome}</p>
       </header>
       <EmConstrucao
         titulo="Em construção"

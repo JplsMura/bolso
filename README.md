@@ -8,6 +8,8 @@ Finanças pessoais e PJ. Contexto: `CLAUDE.md` e `docs/CONTEXTO.md`.
 2. `docker compose up --build`
 3. Front em http://localhost:5173 · API em http://localhost:8080/actuator/health · contrato OpenAPI em http://localhost:8080/v3/api-docs
 
+As portas abrem só em `127.0.0.1` (esta máquina). Ainda não há login: quem alcança a API é tratado como o dono local. Por isso não publique as portas na rede até a feature 007 (login).
+
 ## Desenvolvimento
 
 - Back-end (`backend/`): `./mvnw verify` roda unidade, arquitetura e integração (precisa do Docker Desktop aberto). No Windows: `mvnw.cmd verify`. API local com banco em contêiner: `./mvnw spring-boot:test-run`.

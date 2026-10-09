@@ -27,7 +27,7 @@ services:
       DB_USER: ${POSTGRES_USER:-bolso}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080" # só nesta máquina: sem login, quem chega aqui é o dono
     depends_on:
       db:
         condition: service_healthy
@@ -36,7 +36,7 @@ services:
   web:
     build: ./frontend
     ports:
-      - "5173:80"
+      - "127.0.0.1:5173:80" # só nesta máquina
     depends_on:
       - api
     restart: unless-stopped

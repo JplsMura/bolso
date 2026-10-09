@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Provisório: o Bolso ainda não tem logo. Cores da paleta (primária #2DD4BF, texto sobre ela #04231F). -->
+  <rect width="64" height="64" rx="14" fill="#2DD4BF" />
+  <text x="32" y="46" text-anchor="middle" font-family="DM Sans, Arial, sans-serif" font-size="42" font-weight="700" fill="#04231F">B</text>
+</svg>

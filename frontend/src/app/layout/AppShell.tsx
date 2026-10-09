@@ -3,13 +3,13 @@ import { cn } from '@/shared/lib/cn'
 import { type Espaco, type ItemMenu, MENU } from '../espacos'
 import { SeletorEspaco } from './SeletorEspaco'
 
-type Props = { espaco: Espaco }
+type Props = { espaco: Espaco; nomes: Record<Espaco, string> }
 
 /**
  * Computador: menu lateral com o seletor de espaço.
  * Celular (referência de uso diário): seletor no topo e abas na barra inferior.
  */
-export function AppShell({ espaco }: Props) {
+export function AppShell({ espaco, nomes }: Props) {
   const menu = MENU[espaco]
 
   return (
@@ -18,7 +18,7 @@ export function AppShell({ espaco }: Props) {
         aria-label="Principal"
         className="hidden w-64 shrink-0 flex-col gap-6 border-r border-border px-4 py-6 md:flex"
       >
-        <SeletorEspaco espaco={espaco} />
+        <SeletorEspaco espaco={espaco} nomes={nomes} />
         <ul className="flex flex-col gap-1">
           {menu.map((item) => (
             <li key={item.rotulo}>
@@ -30,7 +30,7 @@ export function AppShell({ espaco }: Props) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="p-4 md:hidden">
-          <SeletorEspaco espaco={espaco} className="w-fit min-w-40" />
+          <SeletorEspaco espaco={espaco} nomes={nomes} className="w-fit min-w-40" />
         </div>
         <main className="flex flex-1 flex-col gap-6 px-4 pb-28 md:p-8">
           <Outlet />
