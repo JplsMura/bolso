@@ -11,14 +11,15 @@ class ModularityTest {
     static final ApplicationModules MODULES = ApplicationModules.of(BolsoApplication.class);
 
     @Test
-    void detectaOsCincoModulos() {
+    void detectaOsSeisModulos() {
         assertThat(MODULES.stream().map(m -> m.getBasePackage().getName()))
                 .containsExactlyInAnyOrder(
                         "dev.bolso.identidade",
                         "dev.bolso.lancamentos",
                         "dev.bolso.cartoes",
                         "dev.bolso.orcamento",
-                        "dev.bolso.faturamento");
+                        "dev.bolso.faturamento",
+                        "dev.bolso.compartilhado");
     }
 
     @Test

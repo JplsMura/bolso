@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.bolso.identidade.EspacoNaoEncontrado;
 import dev.bolso.identidade.Papel;
+import dev.bolso.identidade.TipoEspaco;
 import dev.bolso.identidade.domain.Espaco;
-import dev.bolso.identidade.domain.TipoEspaco;
 import dev.bolso.identidade.domain.UsuarioId;
 import java.util.List;
 import java.util.Optional;

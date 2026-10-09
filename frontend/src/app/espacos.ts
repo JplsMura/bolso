@@ -8,10 +8,13 @@ export function ehEspaco(valor: string): valor is Espaco {
   return (ESPACOS as readonly string[]).includes(valor)
 }
 
+/** Rotas que o menu já sabe abrir. Cada feature acrescenta a sua quando a tela existe. */
+export type RotaDoMenu = '/$espaco' | '/$espaco/lancamentos'
+
 export type ItemMenu = {
   rotulo: string
-  /** Só a página inicial existe até aqui; os outros itens ganham rota na feature correspondente. */
-  disponivel: boolean
+  /** Sem rota, o item aparece apagado ("em breve"): a feature dele ainda não existe. */
+  rota?: RotaDoMenu
   /** Aparece na barra inferior do celular. */
   noCelular?: boolean
 }
@@ -37,19 +40,19 @@ export function nomesDosEspacos(espacos: readonly EspacoApi[]): Record<Espaco, s
 
 export const MENU: Record<Espaco, ItemMenu[]> = {
   casa: [
-    { rotulo: 'Início', disponivel: true, noCelular: true },
-    { rotulo: 'Lançamentos', disponivel: false, noCelular: true },
-    { rotulo: 'Presets', disponivel: false },
-    { rotulo: 'Cartões', disponivel: false, noCelular: true },
-    { rotulo: 'Mês', disponivel: false, noCelular: true },
-    { rotulo: 'Tags', disponivel: false },
-    { rotulo: 'Configurações', disponivel: false },
+    { rotulo: 'Início', rota: '/$espaco', noCelular: true },
+    { rotulo: 'Lançamentos', rota: '/$espaco/lancamentos', noCelular: true },
+    { rotulo: 'Presets' },
+    { rotulo: 'Cartões', noCelular: true },
+    { rotulo: 'Mês', noCelular: true },
+    { rotulo: 'Tags' },
+    { rotulo: 'Configurações' },
   ],
   empresa: [
-    { rotulo: 'Início', disponivel: true, noCelular: true },
-    { rotulo: 'Teto do MEI', disponivel: false, noCelular: true },
-    { rotulo: 'Notas', disponivel: false, noCelular: true },
-    { rotulo: 'Custos e repasse', disponivel: false, noCelular: true },
-    { rotulo: 'Configurações', disponivel: false },
+    { rotulo: 'Início', rota: '/$espaco', noCelular: true },
+    { rotulo: 'Teto do MEI', noCelular: true },
+    { rotulo: 'Notas', noCelular: true },
+    { rotulo: 'Custos e repasse', noCelular: true },
+    { rotulo: 'Configurações' },
   ],
 }

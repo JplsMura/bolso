@@ -23,6 +23,13 @@ class ArquiteturaHexagonalTest {
             .allowEmptyShould(true);
 
     @ArchTest
+    static final ArchRule dominioNaoUsaJpa = noClasses()
+            .that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat().resideInAPackage("jakarta.persistence..")
+            .because("a entidade JPA vive em adapter.out.persistence; o domínio fica testável sem Spring nem Hibernate")
+            .allowEmptyShould(true);
+
+    @ArchTest
     static final ArchRule aplicacaoNaoConheceAdaptadores = noClasses()
             .that().resideInAPackage("..application..")
             .should().dependOnClassesThat().resideInAPackage("..adapter..")

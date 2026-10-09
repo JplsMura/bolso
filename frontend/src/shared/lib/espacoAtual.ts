@@ -15,3 +15,6 @@ export function useEspacoAtual(): EspacoAtual {
   }
   return espaco
 }
+
+/** O trecho do endereço que escolhe o espaço (/casa, /empresa). */
+export type SlugDoEspaco = 'casa' | 'empresa'

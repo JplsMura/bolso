@@ -1,6 +1,7 @@
 package dev.bolso.identidade.domain;
 
 import dev.bolso.identidade.Papel;
+import dev.bolso.identidade.TipoEspaco;
 import java.util.Objects;
 import java.util.UUID;
 

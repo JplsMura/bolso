@@ -21,6 +21,7 @@ class ArquiteturaHexagonalMordeTest {
     static Stream<ArchRule> regras() {
         return Stream.of(
                 ArquiteturaHexagonalTest.dominioEhJavaPuro,
+                ArquiteturaHexagonalTest.dominioNaoUsaJpa,
                 ArquiteturaHexagonalTest.aplicacaoNaoConheceAdaptadores,
                 ArquiteturaHexagonalTest.entradaNaoUsaSaida,
                 ArquiteturaHexagonalTest.saidaNaoUsaEntrada);

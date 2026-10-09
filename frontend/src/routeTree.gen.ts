@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EspacoRouteRouteImport } from './routes/$espaco/route'
 import { Route as EspacoIndexRouteImport } from './routes/$espaco/index'
+import { Route as EspacoLancamentosIndexRouteImport } from './routes/$espaco/lancamentos/index'
+import { Route as EspacoLancamentosIdRouteImport } from './routes/$espaco/lancamentos/$id'
+import { Route as EspacoLancamentosNovoRouteImport } from './routes/$espaco/lancamentos/novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,28 +31,70 @@ const EspacoIndexRoute = EspacoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EspacoRouteRoute,
 } as any)
+const EspacoLancamentosIndexRoute = EspacoLancamentosIndexRouteImport.update({
+  id: '/lancamentos/',
+  path: '/lancamentos/',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
+const EspacoLancamentosIdRoute = EspacoLancamentosIdRouteImport.update({
+  id: '/lancamentos/$id',
+  path: '/lancamentos/$id',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
+const EspacoLancamentosNovoRoute = EspacoLancamentosNovoRouteImport.update({
+  id: '/lancamentos/novo',
+  path: '/lancamentos/novo',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoRouteRouteWithChildren
   '/$espaco/': typeof EspacoIndexRoute
+  '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
+  '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/lancamentos/': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoIndexRoute
+  '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
+  '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/lancamentos': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoRouteRouteWithChildren
   '/$espaco/': typeof EspacoIndexRoute
+  '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
+  '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/lancamentos/': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$espaco' | '/$espaco/'
+  fullPaths:
+    | '/'
+    | '/$espaco'
+    | '/$espaco/'
+    | '/$espaco/lancamentos/$id'
+    | '/$espaco/lancamentos/novo'
+    | '/$espaco/lancamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$espaco'
-  id: '__root__' | '/' | '/$espaco' | '/$espaco/'
+  to:
+    | '/'
+    | '/$espaco'
+    | '/$espaco/lancamentos/$id'
+    | '/$espaco/lancamentos/novo'
+    | '/$espaco/lancamentos'
+  id:
+    | '__root__'
+    | '/'
+    | '/$espaco'
+    | '/$espaco/'
+    | '/$espaco/lancamentos/$id'
+    | '/$espaco/lancamentos/novo'
+    | '/$espaco/lancamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,15 +125,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspacoIndexRouteImport
       parentRoute: typeof EspacoRouteRoute
     }
+    '/$espaco/lancamentos/': {
+      id: '/$espaco/lancamentos/'
+      path: '/lancamentos'
+      fullPath: '/$espaco/lancamentos/'
+      preLoaderRoute: typeof EspacoLancamentosIndexRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
+    '/$espaco/lancamentos/$id': {
+      id: '/$espaco/lancamentos/$id'
+      path: '/lancamentos/$id'
+      fullPath: '/$espaco/lancamentos/$id'
+      preLoaderRoute: typeof EspacoLancamentosIdRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
+    '/$espaco/lancamentos/novo': {
+      id: '/$espaco/lancamentos/novo'
+      path: '/lancamentos/novo'
+      fullPath: '/$espaco/lancamentos/novo'
+      preLoaderRoute: typeof EspacoLancamentosNovoRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
   }
 }
 
 interface EspacoRouteRouteChildren {
   EspacoIndexRoute: typeof EspacoIndexRoute
+  EspacoLancamentosIdRoute: typeof EspacoLancamentosIdRoute
+  EspacoLancamentosNovoRoute: typeof EspacoLancamentosNovoRoute
+  EspacoLancamentosIndexRoute: typeof EspacoLancamentosIndexRoute
 }
 
 const EspacoRouteRouteChildren: EspacoRouteRouteChildren = {
   EspacoIndexRoute: EspacoIndexRoute,
+  EspacoLancamentosIdRoute: EspacoLancamentosIdRoute,
+  EspacoLancamentosNovoRoute: EspacoLancamentosNovoRoute,
+  EspacoLancamentosIndexRoute: EspacoLancamentosIndexRoute,
 }
 
 const EspacoRouteRouteWithChildren = EspacoRouteRoute._addFileChildren(

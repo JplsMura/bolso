@@ -40,3 +40,14 @@ export function formatarBRL(centavos: Centavos): string {
 function garantirInteiro(centavos: Centavos) {
   if (!Number.isSafeInteger(centavos)) throw new Error(`Centavos precisam ser inteiros: ${centavos}`)
 }
+
+const MAX_DIGITOS = 14 // 999.999.999.999,99: o limite do banco (numeric(14,2))
+
+/**
+ * Campo de valor "de caixa registradora": cada dígito digitado entra pela direita, e tudo que não é
+ * dígito (R$, vírgula, ponto) é ignorado. "R$ 1,10" + "0" → 1100 centavos.
+ */
+export function centavosDeDigitos(texto: string): Centavos {
+  const digitos = texto.replace(/\D/g, '').slice(0, MAX_DIGITOS)
+  return digitos === '' ? 0 : Number(digitos)
+}

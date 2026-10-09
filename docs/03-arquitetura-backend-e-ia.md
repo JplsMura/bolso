@@ -18,7 +18,7 @@ Cada contexto tem a sua própria linguagem: "fatura" no contexto de Cartões é 
 | Contexto | O que é dono | Regras que moram aqui |
 | --- | --- | --- |
 | Identidade | usuário, espaço (Casa ou Empresa), membro, papel | login por código no e-mail e Google; quem vê qual espaço |
-| Lançamentos | lançamento, categoria, tag, preset, parcelamento | valor positivo; forma de pagamento; cartão só se for crédito; parcelas criadas nos meses seguintes |
+| Lançamentos | lançamento, tag, preset, parcelamento | valor positivo; forma de pagamento; cartão só se for crédito; parcelas criadas nos meses seguintes |
 | Cartões | cartão, fatura do mês, limite | fatura aberta, fechada ou paga; limite usado; dia de fechamento |
 | Orçamento | as 6 metas, percentual por mês, fechamento do mês | percentuais somam 100%; fechar congela o mês; só o dono reabre |
 | Faturamento PJ | empresa, regime, nota emitida, tomador, parâmetros fiscais | teto do MEI (R$ 81.000 e tolerância de R$ 97.200); Fator R; cálculo do imposto |

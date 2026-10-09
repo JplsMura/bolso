@@ -4,5 +4,10 @@ package dev.bolso.identidade;
 public enum Papel {
     OWNER,
     EDITOR,
-    VIEWER
+    VIEWER;
+
+    /** Só quem não é VIEWER grava. */
+    public boolean podeEscrever() {
+        return this != VIEWER;
+    }
 }

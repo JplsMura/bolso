@@ -1,5 +1,5 @@
 /**
- * Módulo Lançamentos: lançamento, categoria, tag, preset e parcelamento.
+ * Módulo Lançamentos: lançamento, tag, preset e parcelamento.
  *
  * <p>Estrutura (hexagonal): {@code domain} (Java puro), {@code application} (casos de uso e portas),
  * {@code adapter.in.web} e {@code adapter.out.persistence}. Os outros módulos só enxergam a
