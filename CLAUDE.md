@@ -25,3 +25,12 @@ Contexto completo: `docs/CONTEXTO.md`. Requisitos, banco e arquitetura: `docs/*.
 - Back: `cd backend && ./mvnw verify` (Windows: `mvnw.cmd verify`; precisa do Docker aberto)
 - Front: `cd frontend && npm test && npm run lint && npm run typecheck && npm run build`
 - Depois, pedir revisão ao subagente `revisor`.
+
+## Armadilhas conhecidas (já aconteceram)
+- **Repositório público.** Nada de valor financeiro real, cidade ou nome de família em `docs/`, `design/`, testes ou prompts: só exemplos fictícios. Dados reais ficam no banco local, no `.env` e em `backups/` (todos fora do Git).
+- **Node e npm iguais na máquina e no Docker** (Node 24 LTS / npm 11, `node:24-alpine`). Um `package-lock.json` gerado por outra versão do npm quebra o `npm ci` do Docker (dependência opcional do Vitest).
+- **Terminal do IDE é o bash do MSYS2 (Windows).** Maven: `cmd //c mvnw.cmd verify` (`.\mvnw.cmd` não funciona no bash). Comandos de PowerShell, só numa janela de PowerShell.
+- **Depois de instalar Java ou Node, reabrir o IDE inteiro** (o PATH novo só vale assim).
+- **Sessões do Claude na nuvem não alcançam o Maven Central.** Mudanças no backend só estão confirmadas depois do `mvnw verify` na máquina do João Pedro: deixar isso como pendência na spec.
+- **Pasta conectada sem permissão de apagar:** não rodar comandos git de escrita dali (deixam `.git/index.lock`). Só leitura (`git status`, `git ls-files`); commit é do João Pedro.
+- **Gravar em `.claude/` e `.mvn/`** do computador só funciona pelo shell (as ferramentas de cópia recusam essas pastas).
