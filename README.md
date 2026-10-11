@@ -13,7 +13,9 @@ As portas abrem só em `127.0.0.1` (esta máquina). Ainda não há login: quem a
 ## Desenvolvimento
 
 - Back-end (`backend/`): `./mvnw verify` roda unidade, arquitetura e integração (precisa do Docker Desktop aberto). No Windows: `mvnw.cmd verify`. API local com banco em contêiner: `./mvnw spring-boot:test-run`.
+- Verificar tudo de uma vez: `./verificar.sh` (front e back; `--so-front`, `--so-back`, `--docker`). Roda também no GitHub Actions a cada push.
 - Front-end (`frontend/`): `npm install` uma vez, depois `npm run dev`, `npm test`, `npm run lint`, `npm run typecheck`.
+- Front com recarregamento automático dentro do Docker: `docker compose --profile dev up -d web-dev` e abra http://localhost:5174. Ele lê `frontend/` direto: salvou o arquivo, a tela atualiza, sem rebuild. A primeira subida demora (instala os pacotes num volume do contêiner). O `web` (porta 5173) continua servindo o front empacotado e só muda com `docker compose up -d --build web`.
 - Tipos da API no front: com a API rodando, `npm run gen:api`.
 
 ## Backup e restauração

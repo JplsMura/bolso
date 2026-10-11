@@ -22,8 +22,9 @@ Contexto completo: `docs/CONTEXTO.md`. Requisitos, banco e arquitetura: `docs/*.
 - Quem confere o código não é quem escreveu (subagente `revisor`, somente leitura). Merge é humano.
 
 ## Antes de dar uma tarefa como pronta
-- Back: `cd backend && ./mvnw verify` (Windows: `mvnw.cmd verify`; precisa do Docker aberto)
-- Front: `cd frontend && npm test && npm run lint && npm run typecheck && npm run build`
+- `./verificar.sh` na raiz roda tudo: front (testes, lint, typecheck, build) e back (`mvnw verify`, precisa do Docker aberto). `--so-front`, `--so-back`, `--docker` (também reconstrói os contêineres). Para no primeiro erro e mostra o resumo.
+- O mesmo script roda no GitHub Actions (`.github/workflows/verificar.yml`) a cada push e PR, em Java 25 e PostgreSQL 18 de verdade: o ✓ no commit é a confirmação do backend que as sessões na nuvem não conseguem dar.
+- Comandos soltos, se precisar: back `cd backend && ./mvnw verify` (Windows: `cmd //c mvnw.cmd verify`); front `cd frontend && npm test && npm run lint && npm run typecheck && npm run build`.
 - Depois, pedir revisão ao subagente `revisor`.
 
 ## Armadilhas conhecidas (já aconteceram)

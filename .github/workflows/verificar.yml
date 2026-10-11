@@ -1,0 +1,52 @@
+# Roda o ./verificar.sh a cada push e pull request: o mesmo que você roda na máquina.
+# Front e back em paralelo. O back usa Testcontainers (as máquinas do GitHub já têm Docker).
+name: Verificar
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # botão "Run workflow" na aba Actions
+
+concurrency:
+  # um push novo no mesmo branch cancela a verificação anterior, que já ficou velha
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  front:
+    name: Front (testes, lint, typecheck, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # npm 11, igual à máquina e ao Dockerfile (armadilha do package-lock)
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: bash verificar.sh --so-front
+
+  back:
+    name: Back (mvnw verify)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+      - run: bash verificar.sh --so-back
+      - name: Relatórios dos testes (quando falha)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-dos-testes
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+          retention-days: 7

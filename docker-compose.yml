@@ -41,6 +41,28 @@ services:
       - api
     restart: unless-stopped
 
+  # Front com recarregamento automático (servidor de desenvolvimento do Vite, lendo ./frontend direto).
+  # Só sobe quando pedido: docker compose --profile dev up -d web-dev   → http://localhost:5174
+  web-dev:
+    profiles: ["dev"]
+    image: node:24-alpine
+    working_dir: /app
+    # npm ci só na primeira vez (ou quando o package-lock.json mudar); depois, direto o Vite
+    command: >
+      sh -c "cmp -s package-lock.json node_modules/.lock-copia 2>/dev/null
+      || (npm ci && cp package-lock.json node_modules/.lock-copia);
+      npm run dev -- --host 0.0.0.0"
+    environment:
+      VITE_API_PROXY: http://api:8080
+      VITE_POLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - web-dev-node-modules:/app/node_modules # os pacotes do Linux ficam no contêiner, não na sua pasta
+    ports:
+      - "127.0.0.1:5174:5173" # só nesta máquina
+    depends_on:
+      - api
+
   backup:
     image: postgres:18-alpine
     environment:
@@ -61,3 +83,4 @@ services:
 
 volumes:
   db-data:
+  web-dev-node-modules:
