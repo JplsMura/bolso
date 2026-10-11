@@ -2,6 +2,10 @@ import { useEffect, useRef } from 'react'
 
 type Props = {
   descricao: string
+  /** Padrão: "Excluir este lançamento?" */
+  titulo?: string
+  /** Padrão: o gasto sai da lista e dos totais do mês. */
+  texto?: string
   excluindo: boolean
   erro?: string | undefined
   aoCancelar: () => void
@@ -9,7 +13,15 @@ type Props = {
 }
 
 /** Pergunta antes de excluir. O foco começa no botão seguro (Cancelar) e o Esc cancela. */
-export function ConfirmarExclusao({ descricao, excluindo, erro, aoCancelar, aoConfirmar }: Props) {
+export function ConfirmarExclusao({
+  descricao,
+  titulo,
+  texto,
+  excluindo,
+  erro,
+  aoCancelar,
+  aoConfirmar,
+}: Props) {
   const cancelar = useRef<HTMLButtonElement>(null)
   useEffect(() => cancelar.current?.focus(), [])
 
@@ -24,10 +36,10 @@ export function ConfirmarExclusao({ descricao, excluindo, erro, aoCancelar, aoCo
       className="flex flex-col gap-3 rounded-2xl border border-destructive/60 bg-card p-5"
     >
       <h2 id="titulo-exclusao" className="text-lg font-semibold">
-        Excluir este lançamento?
+        {titulo ?? 'Excluir este lançamento?'}
       </h2>
       <p id="texto-exclusao" className="text-sm text-muted-foreground">
-        “{descricao}” sai da lista e dos totais do mês. Não dá para desfazer por aqui.
+        {texto ?? `“${descricao}” sai da lista e dos totais do mês. Não dá para desfazer por aqui.`}
       </p>
       {erro && (
         <p role="alert" className="text-sm text-destructive">

@@ -93,18 +93,18 @@ class FinancasMigracoesIT {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
+    /** A V4 já aceitava CREDIT; desde a V6 ele exige cartão e fatura (ver CartoesMigracoesIT). */
     @Test
-    void creditoJaEstaNaListaPermitida() {
-        var linhas = jdbc.sql("""
+    void creditoSemCartaoERecusadoDesdeAV6() {
+        assertThatThrownBy(() -> jdbc.sql("""
                         INSERT INTO finance.transaction
                             (id, workspace_id, direction, amount, description, occurred_on, reference_month, goal_id, payment_method)
                         VALUES (gen_random_uuid(), :w, 'OUT', 1.00, 'x', DATE '2026-10-09', DATE '2026-10-01', :g, 'CREDIT')
                         """)
-                .param("w", CASA)
-                .param("g", META_CUSTOS_FIXOS)
-                .update();
-
-        assertThat(linhas).isOne();
+                        .param("w", CASA)
+                        .param("g", META_CUSTOS_FIXOS)
+                        .update())
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test

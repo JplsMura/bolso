@@ -2,8 +2,9 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { type SlugDoEspaco, useEspacoAtual } from '@/shared/lib/espacoAtual'
 import { useEditarLancamento, useExcluirLancamento, useLancamento } from '../api/consultas'
-import { ehConflito, ehNaoEncontrado, mensagemDoErro } from '../api/erro'
+import { ehConflito, ehFaturaFechada, ehNaoEncontrado, mensagemDoErro } from '../api/erro'
 import { deLancamento, paraRequisicao, type ValoresDoFormulario } from '../model/formulario'
+import { rotuloDaParcela } from '../model/parcelas'
 import { CabecalhoDeFormulario } from '../ui/CabecalhoDeFormulario'
 import { ConfirmarExclusao } from '../ui/ConfirmarExclusao'
 import { EstadoDeErro } from '../ui/EstadoDeErro'
@@ -57,6 +58,28 @@ export function EditarLancamentoPage({ espaco, id }: Props) {
   }
 
   const atual = lancamento.data
+
+  // parcela se edita pelo parcelamento (o servidor recusa por aqui)
+  if (atual.parcela) {
+    return (
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-5">
+        <CabecalhoDeFormulario titulo="Parcela" espaco={espaco} mes={atual.mesReferencia} />
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-5">
+          <p className="text-[15px]">
+            “{atual.descricao}” é a parcela {rotuloDaParcela(atual.parcela)} de uma compra parcelada. Para
+            mudar a descrição, a meta ou as tags, ou excluir as parcelas que faltam, abra o parcelamento.
+          </p>
+          <Link
+            to="/$espaco/parcelamentos/$id"
+            params={{ espaco, id: atual.parcela.parcelamentoId }}
+            className="inline-flex h-11 items-center rounded-xl bg-primary px-5 text-[15px] font-semibold text-primary-foreground"
+          >
+            Abrir o parcelamento
+          </Link>
+        </div>
+      </div>
+    )
+  }
   const voltarParaLista = (mes: string) =>
     navegar({ to: '/$espaco/lancamentos', params: { espaco }, search: { mes } })
 
@@ -89,7 +112,7 @@ export function EditarLancamentoPage({ espaco, id }: Props) {
   const conflito = editar.isError && ehConflito(editar.error)
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-5">
+    <div className="mx-auto flex w-full max-w-lg md:max-w-5xl flex-col gap-5">
       <CabecalhoDeFormulario titulo="Editar lançamento" espaco={espaco} mes={atual.mesReferencia} />
 
       {conflito && (
@@ -125,6 +148,7 @@ export function EditarLancamentoPage({ espaco, id }: Props) {
             ? mensagemDoErro(editar.error, 'Não foi possível salvar o lançamento. Tente de novo.')
             : undefined
         }
+        erroDeFaturaFechada={editar.isError && ehFaturaFechada(editar.error)}
         acoesExtras={
           <button
             type="button"

@@ -18,7 +18,9 @@ async function erros(arquivo: string, codigo: string, regra: string) {
 const errosDeFronteira = (arquivo: string, codigo: string) =>
   erros(arquivo, codigo, 'boundaries/dependencies')
 
-describe('fronteiras do front', () => {
+// a primeira chamada carrega a config do ESLint e o resolvedor de imports do TypeScript; numa máquina
+// mais lenta isso passa dos 5 s padrão do Vitest (aconteceu na 004, quando a feature cartoes ganhou código)
+describe('fronteiras do front', { timeout: 30_000 }, () => {
   it('bloqueia uma feature importando outra', async () => {
     const erros = await errosDeFronteira(
       'src/features/lancamentos/ui/Lista.tsx',
@@ -90,7 +92,7 @@ describe('fronteiras do front', () => {
   })
 })
 
-describe('dinheiro', () => {
+describe('dinheiro', { timeout: 30_000 }, () => {
   it('bloqueia parseFloat e Number.parseFloat', async () => {
     const global = await erros(
       'src/features/lancamentos/ui/Valor.tsx',

@@ -7,44 +7,49 @@ import dev.bolso.lancamentos.domain.DadosDoLancamento;
 import dev.bolso.lancamentos.domain.Lancamento;
 import dev.bolso.lancamentos.domain.LancamentoNaoEncontrado;
 import dev.bolso.lancamentos.domain.RegraDeNegocio;
-import dev.bolso.orcamento.OrcamentoApi;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Escritas: lançar, editar e excluir. Toda escrita confere a permissão no espaço primeiro. */
+/**
+ * Escritas: lançar, editar e excluir. Toda escrita confere a permissão no espaço primeiro. Gasto no cartão cai numa
+ * fatura aberta; mexer no valor, data, cartão ou forma de pagamento, ou excluir, exige que a fatura atual esteja
+ * aberta. Parcela se edita pelo parcelamento.
+ */
 @Service
 @Transactional
 public class GravarLancamentos {
 
+    static final String PARCELA_PELO_PARCELAMENTO = "Este gasto é uma parcela: edite ou exclua pelo parcelamento";
+
     private final LancamentosRepository lancamentos;
-    private final TagsRepository tags;
-    private final ConsultaDeLancamentos consulta;
+    private final ConsultarLancamentos consultar;
+    private final ConferenciasDoLancamento conferencias;
     private final IdentidadeApi identidade;
-    private final OrcamentoApi orcamento;
     private final Relogio relogio;
 
     public GravarLancamentos(
             LancamentosRepository lancamentos,
-            TagsRepository tags,
-            ConsultaDeLancamentos consulta,
+            ConsultarLancamentos consultar,
+            ConferenciasDoLancamento conferencias,
             IdentidadeApi identidade,
-            OrcamentoApi orcamento,
             Relogio relogio) {
         this.lancamentos = lancamentos;
-        this.tags = tags;
-        this.consulta = consulta;
+        this.consultar = consultar;
+        this.conferencias = conferencias;
         this.identidade = identidade;
-        this.orcamento = orcamento;
         this.relogio = relogio;
     }
 
     public ItemDeLancamento lancar(UUID espacoId, DadosDoLancamento dados) {
         identidade.exigirPermissaoDeEscrita(espacoId);
         var lancamento = Lancamento.novo(UuidV7.gerar(), espacoId, identidade.tipoDoEspaco(espacoId), dados);
-        conferirReferencias(lancamento);
+        conferencias.conferirReferencias(lancamento);
+        if (lancamento.cartaoId() != null) {
+            lancamento = lancamento.naFatura(faturaDaCompra(lancamento));
+        }
         lancamentos.salvar(lancamento, relogio.agora());
-        return itemGravado(lancamento);
+        return consultar.buscar(espacoId, lancamento.id());
     }
 
     /** {@code versaoLida} é a versão que a tela leu; se mudou, 409. */
@@ -54,30 +59,39 @@ public class GravarLancamentos {
         if (atual.versao() != versaoLida) {
             throw new ConflitoDeVersao(id);
         }
+        if (atual.ehParcela()) {
+            throw new RegraDeNegocio(PARCELA_PELO_PARCELAMENTO);
+        }
         var editado = atual.editar(identidade.tipoDoEspaco(espacoId), dados);
-        conferirReferencias(editado);
+        conferencias.conferirReferencias(editado);
+        if (editado.mexeNaFaturaEmRelacaoA(atual)) {
+            if (atual.faturaId() != null) {
+                conferencias.exigirAberta(espacoId, atual.faturaId());
+            }
+            if (editado.cartaoId() != null) {
+                editado = editado.naFatura(faturaDaCompra(editado));
+            }
+        }
         lancamentos.salvar(editado, relogio.agora());
-        return itemGravado(editado);
+        return consultar.buscar(espacoId, id);
     }
 
     public void excluir(UUID espacoId, UUID id) {
         identidade.exigirPermissaoDeEscrita(espacoId);
+        var atual = lancamentos.buscar(espacoId, id).orElseThrow(() -> new LancamentoNaoEncontrado(id));
+        if (atual.ehParcela()) {
+            throw new RegraDeNegocio(PARCELA_PELO_PARCELAMENTO);
+        }
+        if (atual.faturaId() != null) {
+            conferencias.exigirAberta(espacoId, atual.faturaId());
+        }
         if (!lancamentos.excluir(espacoId, id, relogio.agora())) {
             throw new LancamentoNaoEncontrado(id);
         }
     }
 
-    /** A meta e as tags precisam existir neste espaço (o banco também garante, por chave composta). */
-    private void conferirReferencias(Lancamento lancamento) {
-        if (lancamento.metaId() != null && !orcamento.metaExisteNoEspaco(lancamento.espacoId(), lancamento.metaId())) {
-            throw new RegraDeNegocio("Meta não encontrada neste espaço");
-        }
-        if (!tags.todasAtivasNoEspaco(lancamento.espacoId(), lancamento.tagIds())) {
-            throw new RegraDeNegocio("Tag não encontrada neste espaço");
-        }
-    }
-
-    private ItemDeLancamento itemGravado(Lancamento lancamento) {
-        return consulta.buscar(lancamento.espacoId(), lancamento.id()).orElseThrow();
+    private UUID faturaDaCompra(Lancamento lancamento) {
+        var mes = conferencias.mesDaFatura(lancamento.espacoId(), lancamento.cartaoId(), lancamento.data());
+        return conferencias.faturaAberta(lancamento.espacoId(), lancamento.cartaoId(), mes).id();
     }
 }

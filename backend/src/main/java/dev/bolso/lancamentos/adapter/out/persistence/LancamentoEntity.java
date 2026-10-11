@@ -13,7 +13,8 @@ import java.util.UUID;
 /**
  * Espelho de {@code finance.transaction} para o JPA (Hibernate em {@code validate}: precisa bater com o
  * Flyway). Fica só no adaptador; o domínio é {@code Lancamento}. Enums viram texto aqui, no mapeamento.
- * As tags ficam em {@code finance.transaction_tag}, gravadas à parte pelo repositório.
+ * As tags ficam em {@code finance.transaction_tag}, gravadas à parte pelo repositório. Cartão, fatura e parcela
+ * (feature 004) são só ids: os cadastros vivem no módulo Cartões e em {@code installment_plan}.
  */
 @Entity
 @Table(name = "transaction", schema = "finance")
@@ -46,6 +47,18 @@ class LancamentoEntity {
 
     @Column(name = "payment_method")
     String formaPagamento;
+
+    @Column(name = "card_id")
+    UUID cartaoId;
+
+    @Column(name = "invoice_id")
+    UUID faturaId;
+
+    @Column(name = "installment_plan_id", updatable = false)
+    UUID parcelamentoId;
+
+    @Column(name = "installment_no", updatable = false)
+    Integer numeroDaParcela;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     Instant criadoEm;

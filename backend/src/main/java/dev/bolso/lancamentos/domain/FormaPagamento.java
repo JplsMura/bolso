@@ -1,6 +1,6 @@
 package dev.bolso.lancamentos.domain;
 
-/** Como o gasto foi pago. {@code CREDIT} existe no banco mas só é aceito a partir da feature de cartões. */
+/** Como o gasto foi pago. {@code CREDIT} exige um cartão do espaço. */
 public enum FormaPagamento {
     PIX,
     DEBIT,

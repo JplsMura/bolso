@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/espacos/{espacoId}/parcelamentos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["buscarParcelamento"];
+        put: operations["editarParcelamento"];
+        post?: never;
+        delete: operations["excluirParcelamento"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/espacos/{espacoId}/lancamentos/{id}": {
         parameters: {
             query?: never;
@@ -15,6 +31,22 @@ export interface paths {
         put: operations["editarLancamento"];
         post?: never;
         delete: operations["excluirLancamento"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/cartoes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["editarCartao"];
+        post?: never;
+        delete: operations["arquivarCartao"];
         options?: never;
         head?: never;
         patch?: never;
@@ -36,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/espacos/{espacoId}/parcelamentos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["criarParcelamento"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/espacos/{espacoId}/lancamentos": {
         parameters: {
             query?: never;
@@ -46,6 +94,86 @@ export interface paths {
         get: operations["listarLancamentos"];
         put?: never;
         post: operations["criarLancamento"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/faturas/{id}/reabrir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reabrirFatura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/faturas/{id}/pagar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pagarFatura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/faturas/{id}/fechar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["fecharFatura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/faturas/{id}/desfazer-pagamento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["desfazerPagamentoDaFatura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/cartoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listarCartoes"];
+        put?: never;
+        post: operations["criarCartao"];
         delete?: never;
         options?: never;
         head?: never;
@@ -100,10 +228,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/espacos/{espacoId}/faturas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listarFaturas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/espacos/{espacoId}/cartoes/{id}/fatura-da-compra": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["faturaDaCompra"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        EditarParcelamentoRequest: {
+            descricao: string;
+            /** Format: uuid */
+            metaId?: string;
+            tagIds?: string[];
+            /** Format: int64 */
+            versao: number;
+        };
+        ParcelaDoParcelamentoResponse: {
+            /** Format: uuid */
+            lancamentoId: string;
+            /** Format: int32 */
+            numero: number;
+            valor: string;
+            /** Format: date */
+            data: string;
+            faturaMes?: string;
+            faturaAberta: boolean;
+        };
+        ParcelamentoResponse: {
+            /** Format: uuid */
+            id: string;
+            descricao: string;
+            valorTotal: string;
+            /** Format: int32 */
+            parcelas: number;
+            /** Format: int32 */
+            parcelaAtual: number;
+            /** Format: date */
+            data: string;
+            /** Format: uuid */
+            cartaoId: string;
+            /** Format: uuid */
+            metaId?: string;
+            tags: components["schemas"]["TagResumoResponse"][];
+            /** Format: int64 */
+            versao: number;
+            itens: components["schemas"]["ParcelaDoParcelamentoResponse"][];
+        };
+        TagResumoResponse: {
+            /** Format: uuid */
+            id: string;
+            nome: string;
+        };
         EditarLancamentoRequest: {
             /** @enum {string} */
             direcao: "IN" | "OUT";
@@ -115,6 +319,8 @@ export interface components {
             metaId?: string;
             /** @enum {string} */
             formaPagamento?: "PIX" | "DEBIT" | "CREDIT" | "CASH" | "BOLETO" | "TRANSFER" | "OTHER";
+            /** Format: uuid */
+            cartaoId?: string;
             tagIds?: string[];
             /** Format: int64 */
             versao: number;
@@ -133,14 +339,45 @@ export interface components {
             metaId?: string;
             /** @enum {string} */
             formaPagamento?: "PIX" | "DEBIT" | "CREDIT" | "CASH" | "BOLETO" | "TRANSFER" | "OTHER";
+            /** Format: uuid */
+            cartaoId?: string;
+            faturaMes?: string;
+            parcela?: components["schemas"]["ParcelaResponse"];
             tags: components["schemas"]["TagResumoResponse"][];
             /** Format: int64 */
             versao: number;
         };
-        TagResumoResponse: {
+        ParcelaResponse: {
+            /** Format: uuid */
+            parcelamentoId: string;
+            /** Format: int32 */
+            numero: number;
+            /** Format: int32 */
+            total: number;
+        };
+        EditarCartaoRequest: {
+            nome: string;
+            /** Format: int32 */
+            diaFechamento: number;
+            /** Format: int32 */
+            diaVencimento: number;
+            limite: string;
+            /** Format: int64 */
+            versao: number;
+        };
+        CartaoResponse: {
             /** Format: uuid */
             id: string;
             nome: string;
+            /** Format: int32 */
+            diaFechamento: number;
+            /** Format: int32 */
+            diaVencimento: number;
+            limite: string;
+            usado: string;
+            disponivel: string;
+            /** Format: int64 */
+            versao: number;
         };
         NovaTagRequest: {
             nome: string;
@@ -154,6 +391,21 @@ export interface components {
             /** @enum {string} */
             tipoCusto?: "FIXED" | "VARIABLE";
         };
+        NovoParcelamentoRequest: {
+            valorTotal: string;
+            /** Format: int32 */
+            parcelas: number;
+            /** Format: int32 */
+            parcelaAtual?: number;
+            descricao: string;
+            /** Format: date */
+            data: string;
+            /** Format: uuid */
+            cartaoId: string;
+            /** Format: uuid */
+            metaId?: string;
+            tagIds?: string[];
+        };
         NovoLancamentoRequest: {
             /** @enum {string} */
             direcao: "IN" | "OUT";
@@ -165,7 +417,65 @@ export interface components {
             metaId?: string;
             /** @enum {string} */
             formaPagamento?: "PIX" | "DEBIT" | "CREDIT" | "CASH" | "BOLETO" | "TRANSFER" | "OTHER";
+            /** Format: uuid */
+            cartaoId?: string;
             tagIds?: string[];
+        };
+        MudarStatusRequest: {
+            /** Format: int64 */
+            versao: number;
+        };
+        FaturaDoCartaoResponse: {
+            cartao: components["schemas"]["CartaoResponse"];
+            fatura?: components["schemas"]["FaturaResponse"];
+        };
+        FaturaResponse: {
+            /** Format: uuid */
+            id: string;
+            mes: string;
+            /** @enum {string} */
+            status: "OPEN" | "CLOSED" | "PAID";
+            /** Format: date */
+            fechamento: string;
+            /** Format: date */
+            vencimento: string;
+            total: string;
+            /** Format: date */
+            pagaEm?: string;
+            /** Format: int64 */
+            versao: number;
+            itens: components["schemas"]["ItemDaFaturaResponse"][];
+        };
+        ItemDaFaturaResponse: {
+            /** Format: uuid */
+            lancamentoId: string;
+            descricao: string;
+            /** Format: date */
+            data: string;
+            /** Format: uuid */
+            metaId?: string;
+            valor: string;
+            parcela?: components["schemas"]["ParcelaDoItemDaFaturaResponse"];
+        };
+        ParcelaDoItemDaFaturaResponse: {
+            /** Format: int32 */
+            numero: number;
+            /** Format: int32 */
+            total: number;
+        };
+        PagarFaturaRequest: {
+            /** Format: int64 */
+            versao: number;
+            /** Format: date */
+            pagaEm?: string;
+        };
+        NovoCartaoRequest: {
+            nome: string;
+            /** Format: int32 */
+            diaFechamento: number;
+            /** Format: int32 */
+            diaVencimento: number;
+            limite: string;
         };
         EspacoResponse: {
             /** Format: uuid */
@@ -194,6 +504,19 @@ export interface components {
             saidas: string;
             sobra: string;
         };
+        FaturasDoMesResponse: {
+            mes: string;
+            faturas: components["schemas"]["FaturaDoCartaoResponse"][];
+        };
+        FaturaDaCompraResponse: {
+            mes: string;
+            /** Format: date */
+            fechamento: string;
+            /** Format: date */
+            vencimento: string;
+            /** @enum {string} */
+            status?: "OPEN" | "CLOSED" | "PAID";
+        };
     };
     responses: never;
     parameters: never;
@@ -203,6 +526,77 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    buscarParcelamento: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParcelamentoResponse"];
+                };
+            };
+        };
+    };
+    editarParcelamento: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditarParcelamentoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParcelamentoResponse"];
+                };
+            };
+        };
+    };
+    excluirParcelamento: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     buscarLancamento: {
         parameters: {
             query?: never;
@@ -274,6 +668,54 @@ export interface operations {
             };
         };
     };
+    editarCartao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditarCartaoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartaoResponse"];
+                };
+            };
+        };
+    };
+    arquivarCartao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     listarTags: {
         parameters: {
             query?: never;
@@ -311,13 +753,39 @@ export interface operations {
             };
         };
         responses: {
-            /** @description OK */
-            200: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["TagResponse"];
+                };
+            };
+        };
+    };
+    criarParcelamento: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovoParcelamentoRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParcelamentoResponse"];
                 };
             };
         };
@@ -331,6 +799,7 @@ export interface operations {
                 tagId?: string;
                 pagamento?: "PIX" | "DEBIT" | "CREDIT" | "CASH" | "BOLETO" | "TRANSFER" | "OTHER";
                 direcao?: "IN" | "OUT";
+                cartaoId?: string;
             };
             header?: never;
             path: {
@@ -366,13 +835,169 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LancamentoResponse"];
+                };
+            };
+        };
+    };
+    reabrirFatura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MudarStatusRequest"];
+            };
+        };
+        responses: {
             /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LancamentoResponse"];
+                    "application/json": components["schemas"]["FaturaDoCartaoResponse"];
+                };
+            };
+        };
+    };
+    pagarFatura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PagarFaturaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaturaDoCartaoResponse"];
+                };
+            };
+        };
+    };
+    fecharFatura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MudarStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaturaDoCartaoResponse"];
+                };
+            };
+        };
+    };
+    desfazerPagamentoDaFatura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MudarStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaturaDoCartaoResponse"];
+                };
+            };
+        };
+    };
+    listarCartoes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartaoResponse"][];
+                };
+            };
+        };
+    };
+    criarCartao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                espacoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovoCartaoRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartaoResponse"];
                 };
             };
         };
@@ -437,6 +1062,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MetaResponse"][];
+                };
+            };
+        };
+    };
+    listarFaturas: {
+        parameters: {
+            query?: {
+                mes?: string;
+            };
+            header?: never;
+            path: {
+                espacoId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaturasDoMesResponse"];
+                };
+            };
+        };
+    };
+    faturaDaCompra: {
+        parameters: {
+            query: {
+                data: string;
+            };
+            header?: never;
+            path: {
+                espacoId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaturaDaCompraResponse"];
                 };
             };
         };

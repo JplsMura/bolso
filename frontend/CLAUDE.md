@@ -16,6 +16,7 @@
 
 - `npm test` · `npm run lint` · `npm run typecheck` · `npm run build`
 - `npm run dev` (porta 5173; repassa `/api`, `/actuator` e `/v3` para `localhost:8080`)
+- No Docker com recarregamento: `docker compose --profile dev up -d web-dev` (porta 5174, Vite lendo `frontend/` montado, `VITE_POLLING=true` porque pasta do Windows não avisa mudanças, `node_modules` num volume do contêiner). O serviço `web` (5173) é o build de produção: mudança de código só aparece com `--build`.
 
 ## Testes
 

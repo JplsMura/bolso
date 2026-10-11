@@ -466,6 +466,89 @@ class LancamentosControllerIT {
         mvc.perform(get("/api/v1/espacos/" + CASA + "/lancamentos/abc")).andExpect(status().isBadRequest());
     }
 
+    // ---------- cartão de crédito (004) ----------
+
+    String criarCartao(String nome) throws Exception {
+        var resposta = mvc.perform(post("/api/v1/espacos/" + CASA + "/cartoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"" + nome + "\",\"diaFechamento\":25,\"diaVencimento\":5,\"limite\":\"4500.00\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return JsonPath.read(resposta, "$.id");
+    }
+
+    @Test
+    void gastoNoCreditoTrazCartaoEMesDaFaturaEContaNoMesDaCompra() throws Exception {
+        var cartao = criarCartao("Cartão A");
+
+        postar(CASA, dev.bolso.ApiDeTeste.noCredito("23.90", "Uber", "2026-03-28", CONFORTO, cartao))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.formaPagamento").value("CREDIT"))
+                .andExpect(jsonPath("$.cartaoId").value(cartao))
+                .andExpect(jsonPath("$.faturaMes").value("2026-04"))
+                .andExpect(jsonPath("$.mesReferencia").value("2026-03"))
+                .andExpect(jsonPath("$.parcela").doesNotExist());
+        listar(CASA, "?mes=2026-03").andExpect(jsonPath("$.totais.saidas").value("23.90"));
+    }
+
+    @Test
+    void pixNaoTrazCartaoNemFatura() throws Exception {
+        postar(CASA, saida("10.00", "Padaria", "2026-03-10", CONFORTO, "PIX"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cartaoId").doesNotExist())
+                .andExpect(jsonPath("$.faturaMes").doesNotExist());
+    }
+
+    @Test
+    void cartaoComPixECreditoSemCartaoDao422() throws Exception {
+        var cartao = criarCartao("Cartão A");
+
+        postar(CASA, saida("1.00", "x", "2026-03-10", CONFORTO, "PIX").replace("\"tagIds\"", "\"cartaoId\":\"" + cartao + "\",\"tagIds\""))
+                .andExpect(status().is(422));
+        postar(CASA, saida("1.00", "x", "2026-03-10", CONFORTO, "CREDIT")).andExpect(status().is(422));
+        postar(CASA, dev.bolso.ApiDeTeste.noCredito("1.00", "x", "2026-03-10", CONFORTO, UUID.randomUUID().toString()))
+                .andExpect(status().is(422));
+    }
+
+    @Test
+    void filtraPorCartao() throws Exception {
+        var a = criarCartao("Cartão A");
+        var b = criarCartao("Cartão B");
+        postar(CASA, dev.bolso.ApiDeTeste.noCredito("1.00", "no A", "2026-03-10", CONFORTO, a)).andExpect(status().isCreated());
+        postar(CASA, dev.bolso.ApiDeTeste.noCredito("2.00", "no B", "2026-03-10", CONFORTO, b)).andExpect(status().isCreated());
+        criar(CASA, saida("3.00", "no PIX", "2026-03-10", CONFORTO, "PIX"));
+
+        listar(CASA, "?mes=2026-03&cartaoId=" + a)
+                .andExpect(jsonPath("$.itens.length()").value(1))
+                .andExpect(jsonPath("$.itens[0].descricao").value("no A"))
+                .andExpect(jsonPath("$.totais.saidas").value("6.00"));
+        listar(CASA, "?mes=2026-03&pagamento=CREDIT").andExpect(jsonPath("$.itens.length()").value(2));
+    }
+
+    @Test
+    void mudarADataLevaOGastoParaOutraFatura() throws Exception {
+        var cartao = criarCartao("Cartão A");
+        var id = criar(CASA, dev.bolso.ApiDeTeste.noCredito("10.00", "x", "2026-03-10", CONFORTO, cartao));
+
+        mvc.perform(put("/api/v1/espacos/" + CASA + "/lancamentos/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(dev.bolso.ApiDeTeste.noCredito("10.00", "x", "2026-03-26", CONFORTO, cartao).replace("}", ",\"versao\":0}")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.faturaMes").value("2026-04"));
+    }
+
+    @Test
+    void excluirGastoEmFaturaAbertaTiraDaFatura() throws Exception {
+        var cartao = criarCartao("Cartão A");
+        var id = criar(CASA, dev.bolso.ApiDeTeste.noCredito("10.00", "x", "2026-03-10", CONFORTO, cartao));
+
+        mvc.perform(delete("/api/v1/espacos/" + CASA + "/lancamentos/" + id)).andExpect(status().isNoContent());
+
+        mvc.perform(get("/api/v1/espacos/" + CASA + "/cartoes")).andExpect(jsonPath("$[0].usado").value("0.00"));
+    }
+
     // ---------- contrato ----------
 
     @Test
@@ -480,7 +563,30 @@ class LancamentosControllerIT {
         assertThat((String) JsonPath.read(json, "$.components.schemas.TotaisResponse.properties.sobra.type")).isEqualTo("string");
         assertThat((java.util.List<String>) JsonPath.read(json, "$.components.schemas.LancamentoResponse.required"))
                 .contains("id", "direcao", "valor", "descricao", "data", "mesReferencia", "tags", "versao")
-                .doesNotContain("metaId", "formaPagamento");
+                .doesNotContain("metaId", "formaPagamento", "cartaoId", "faturaMes", "parcela");
+    }
+
+    @Test
+    void openApiTrazOsEndpointsDaFeature004() throws Exception {
+        var json = mvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+        for (var caminho : java.util.List.of(
+                "/cartoes", "/cartoes/{id}", "/cartoes/{id}/fatura-da-compra", "/faturas", "/faturas/{id}/fechar",
+                "/faturas/{id}/pagar", "/faturas/{id}/reabrir", "/faturas/{id}/desfazer-pagamento", "/parcelamentos",
+                "/parcelamentos/{id}")) {
+            assertThat((Object) JsonPath.read(json, "$.paths['/api/v1/espacos/{espacoId}" + caminho + "']")).as(caminho).isNotNull();
+        }
+        for (var post : java.util.List.of("/cartoes", "/parcelamentos")) {
+            assertThat((Object) JsonPath.read(json, "$.paths['/api/v1/espacos/{espacoId}" + post + "'].post.responses['201']"))
+                    .as(post).isNotNull();
+        }
+        assertThat((String) JsonPath.read(json, "$.components.schemas.CartaoResponse.properties.limite.type")).isEqualTo("string");
+        assertThat((String) JsonPath.read(json, "$.components.schemas.FaturaResponse.properties.total.type")).isEqualTo("string");
+        assertThat((String) JsonPath.read(json, "$.components.schemas.NovoParcelamentoRequest.properties.valorTotal.type"))
+                .isEqualTo("string");
+        assertThat((java.util.List<String>) JsonPath.read(json, "$.components.schemas.FaturaDoCartaoResponse.required"))
+                .contains("cartao")
+                .doesNotContain("fatura");
     }
 
     private UUID criaEspacoDeOutroUsuario() {

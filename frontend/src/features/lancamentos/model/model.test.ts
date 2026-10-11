@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 import type { LancamentoApi } from './tipos'
 import { agruparPorDia } from './agrupar'
 import { diaDe, rotuloDoDia } from './datas'
-import { criarSchema, deLancamento, paraRequisicao, valoresIniciais } from './formulario'
+import {
+  criarSchema,
+  deLancamento,
+  ehParcelado,
+  paraParcelamento,
+  paraRequisicao,
+  valoresIniciais,
+} from './formulario'
+import { dividirEmParcelas, resumoDasParcelas, rotuloDaParcela } from './parcelas'
 import { ehMes, mesDe, rotuloCurtoDoMes, rotuloLongoDoMes, somarMeses } from './mes'
 
 describe('meses', () => {
@@ -109,6 +117,9 @@ describe('regras do formulário', () => {
   })
 })
 
+/** Campos de cartão e parcelas de um gasto que não é no cartão. */
+const semCartao = { cartaoId: null, parcelas: 1, emAndamento: false, parcelaAtual: 1 }
+
 describe('corpo da requisição', () => {
   it('manda o valor como texto da API, sem float', () => {
     const corpo = paraRequisicao(
@@ -120,6 +131,7 @@ describe('corpo da requisição', () => {
         metaId: 'm1',
         formaPagamento: 'PIX',
         tagIds: ['t1'],
+        ...semCartao,
       },
       true,
     )
@@ -144,6 +156,7 @@ describe('corpo da requisição', () => {
         metaId: 'm1',
         formaPagamento: 'PIX',
         tagIds: [],
+        ...semCartao,
       },
       true,
     )
@@ -161,6 +174,7 @@ describe('corpo da requisição', () => {
         metaId: 'm1',
         formaPagamento: 'BOLETO',
         tagIds: [],
+        ...semCartao,
       },
       false,
     )
@@ -176,5 +190,83 @@ describe('corpo da requisição', () => {
       tags: [{ id: 't1', nome: 'Luz' }],
     })
     expect(valores).toMatchObject({ centavos: 8990, metaId: 'm1', formaPagamento: 'DEBIT', tagIds: ['t1'] })
+  })
+})
+
+describe('cartão e parcelas', () => {
+  const noCartao = {
+    ...valoresIniciais('OUT', '2026-10-08'),
+    centavos: 15000,
+    descricao: 'Curso online',
+    metaId: 'm1',
+    formaPagamento: 'CREDIT' as const,
+    cartaoId: 'c1',
+  }
+
+  it('crédito exige cartão; outra forma de pagamento não manda cartão', () => {
+    const schema = criarSchema(true)
+    const semCartaoEscolhido = schema.safeParse({ ...noCartao, cartaoId: null })
+    expect(semCartaoEscolhido.success).toBe(false)
+    expect(semCartaoEscolhido.error?.issues[0]?.message).toBe('Escolha o cartão')
+    expect(schema.safeParse(noCartao).success).toBe(true)
+
+    expect(paraRequisicao(noCartao, true)).toMatchObject({ formaPagamento: 'CREDIT', cartaoId: 'c1' })
+    expect(paraRequisicao({ ...noCartao, formaPagamento: 'PIX' }, true)).not.toHaveProperty('cartaoId')
+  })
+
+  it('só é parcelado no cartão com 2 ou mais parcelas', () => {
+    expect(ehParcelado({ ...noCartao, parcelas: 1 })).toBe(false)
+    expect(ehParcelado({ ...noCartao, parcelas: 6 })).toBe(true)
+    expect(ehParcelado({ ...noCartao, parcelas: 6, formaPagamento: 'PIX' })).toBe(false)
+  })
+
+  it('parcelas de 1 a 48, pelo menos 1 centavo cada e parcela atual dentro do total', () => {
+    const schema = criarSchema(true)
+    expect(schema.safeParse({ ...noCartao, parcelas: 49 }).success).toBe(false)
+    expect(schema.safeParse({ ...noCartao, parcelas: Number.NaN }).success).toBe(false)
+    expect(schema.safeParse({ ...noCartao, centavos: 5, parcelas: 6 }).success).toBe(false)
+    expect(schema.safeParse({ ...noCartao, parcelas: 6, emAndamento: true, parcelaAtual: 7 }).success).toBe(
+      false,
+    )
+    expect(schema.safeParse({ ...noCartao, parcelas: 6, emAndamento: true, parcelaAtual: 4 }).success).toBe(
+      true,
+    )
+  })
+
+  it('o corpo do parcelamento leva o total e a parcela atual só se em andamento', () => {
+    expect(paraParcelamento({ ...noCartao, parcelas: 6 }, true)).toEqual({
+      valorTotal: '150.00',
+      parcelas: 6,
+      descricao: 'Curso online',
+      data: '2026-10-08',
+      cartaoId: 'c1',
+      tagIds: [],
+      metaId: 'm1',
+    })
+    expect(
+      paraParcelamento({ ...noCartao, parcelas: 6, emAndamento: true, parcelaAtual: 4 }, false),
+    ).toMatchObject({
+      parcelaAtual: 4,
+    })
+    expect(paraParcelamento({ ...noCartao, parcelas: 6 }, false)).not.toHaveProperty('metaId')
+  })
+
+  it('divide como o servidor: sobra de centavos na primeira', () => {
+    expect(dividirEmParcelas(10000, 3)).toEqual([3334, 3333, 3333])
+    expect(dividirEmParcelas(15000, 6)).toEqual([2500, 2500, 2500, 2500, 2500, 2500])
+    expect(resumoDasParcelas(15000, 6)).toBe('6x de R$\u00a025,00')
+    expect(resumoDasParcelas(10000, 3)).toBe('1x de R$\u00a033,34 + 2x de R$\u00a033,33')
+    expect(rotuloDaParcela({ numero: 2, total: 6 })).toBe('2/6')
+  })
+
+  it('o gasto no cartão da API volta com o cartão; em outra forma, sem', () => {
+    expect(
+      deLancamento({ ...lanc('a', '2026-03-10'), formaPagamento: 'CREDIT', cartaoId: 'c1' }),
+    ).toMatchObject({
+      formaPagamento: 'CREDIT',
+      cartaoId: 'c1',
+      parcelas: 1,
+    })
+    expect(deLancamento({ ...lanc('a', '2026-03-10'), formaPagamento: 'PIX' }).cartaoId).toBeNull()
   })
 })

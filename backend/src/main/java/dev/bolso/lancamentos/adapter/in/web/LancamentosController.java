@@ -46,8 +46,9 @@ class LancamentosController {
             @RequestParam(required = false) UUID metaId,
             @RequestParam(required = false) UUID tagId,
             @RequestParam(required = false) FormaPagamento pagamento,
-            @RequestParam(required = false) Direcao direcao) {
-        var filtros = new FiltrosDeLancamento(q, metaId, tagId, pagamento, direcao);
+            @RequestParam(required = false) Direcao direcao,
+            @RequestParam(required = false) UUID cartaoId) {
+        var filtros = new FiltrosDeLancamento(q, metaId, tagId, pagamento, direcao, cartaoId);
         return ListaDoMesResponse.de(consultar.consultarMes(espacoId, mes == null ? null : YearMonth.parse(mes), filtros));
     }
 

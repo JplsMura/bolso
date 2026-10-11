@@ -25,7 +25,7 @@ Cada contexto tem a sua própria linguagem: "fatura" no contexto de Cartões é 
 
 **Como se falam.** Um contexto nunca lê a tabela de outro. Conversam por duas vias:
 
-- **Chamada síncrona** a uma interface pública do outro módulo, quando precisam da resposta na hora. Exemplo: Lançamentos pergunta a Cartões em qual fatura cai uma compra feita nesta data.
+- **Chamada síncrona** a uma interface pública do outro módulo, quando precisam da resposta na hora. Exemplo: Lançamentos pergunta em qual fatura cai uma compra feita nesta data. Para não criar ciclo (Cartões também precisa somar os lançamentos de cada fatura), a pergunta é uma porta publicada pelo Lançamentos (`FaturasDoCartao`), que o Cartões implementa; o Cartões lê somas e itens pela `LancamentosApi`. A dependência fica num sentido só: `cartoes → lancamentos` (spec 004).
 - **Evento** quando só avisam que algo aconteceu. Exemplo: Faturamento PJ publica "nota emitida" e Lançamentos cria a receita correspondente, guardando só uma referência de origem, sem chave estrangeira.
 
 **Agregados.** Dentro de cada contexto, o que precisa ser consistente junto fica num agregado, e só a raiz é acessada de fora: a fatura com os seus totais, o mês de orçamento com as suas 6 metas, o parcelamento com as suas parcelas. Isso casa com o bloqueio otimista (coluna `version`) já previsto no banco.

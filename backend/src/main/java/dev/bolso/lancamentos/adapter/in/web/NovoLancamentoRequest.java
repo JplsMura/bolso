@@ -11,7 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-/** Corpo do POST. O formato do valor é conferido aqui (400); as regras de negócio, no domínio (422). */
+/**
+ * Corpo do POST. O formato do valor é conferido aqui (400); as regras de negócio, no domínio (422). {@code cartaoId}
+ * só com {@code CREDIT}.
+ */
 public record NovoLancamentoRequest(
         @NotNull Direcao direcao,
         @NotNull @Pattern(regexp = "\\d{1,12}\\.\\d{2}", message = "use o formato 110.00") String valor,
@@ -19,10 +22,11 @@ public record NovoLancamentoRequest(
         @NotNull LocalDate data,
         UUID metaId,
         FormaPagamento formaPagamento,
+        UUID cartaoId,
         List<UUID> tagIds) {
 
     DadosDoLancamento paraDados() {
-        return DadosFormatados.de(direcao, valor, descricao, data, metaId, formaPagamento, tagIds);
+        return DadosFormatados.de(direcao, valor, descricao, data, metaId, formaPagamento, cartaoId, tagIds);
     }
 
     /** Monta os dados do domínio; compartilhado entre criar e editar. */
@@ -30,7 +34,14 @@ public record NovoLancamentoRequest(
         private DadosFormatados() {}
 
         static DadosDoLancamento de(
-                Direcao direcao, String valor, String descricao, LocalDate data, UUID metaId, FormaPagamento forma, List<UUID> tagIds) {
+                Direcao direcao,
+                String valor,
+                String descricao,
+                LocalDate data,
+                UUID metaId,
+                FormaPagamento forma,
+                UUID cartaoId,
+                List<UUID> tagIds) {
             return new DadosDoLancamento(
                     direcao,
                     Dinheiro.deTexto(valor),
@@ -38,6 +49,7 @@ public record NovoLancamentoRequest(
                     data,
                     metaId,
                     forma,
+                    cartaoId,
                     tagIds == null ? new HashSet<>() : new HashSet<>(tagIds));
         }
     }

@@ -103,9 +103,77 @@ class LancamentoTest {
         recusa(TipoEspaco.HOME, saida(Dinheiro.deTexto("1.00"), "x", META, null, Set.of()), "forma de pagamento");
     }
 
+    static final UUID CARTAO = UUID.fromString("00000000-0000-7000-8000-0000000000d1");
+    static final UUID FATURA = UUID.fromString("00000000-0000-7000-8000-0000000000e1");
+
+    static DadosDoLancamento noCredito(UUID cartao) {
+        return new DadosDoLancamento(
+                Direcao.OUT, Dinheiro.deTexto("23.90"), "Uber", DATA, META, FormaPagamento.CREDIT, cartao, Set.of());
+    }
+
     @Test
-    void cartaoDeCreditoFicaParaAFeatureDeCartoes() {
-        recusa(TipoEspaco.HOME, saida(Dinheiro.deTexto("1.00"), "x", META, FormaPagamento.CREDIT, Set.of()), "Cartão de crédito");
+    void creditoPrecisaDeCartao() {
+        recusa(TipoEspaco.HOME, noCredito(null), "cartão");
+    }
+
+    @Test
+    void cartaoSoComCredito() {
+        var pix = new DadosDoLancamento(Direcao.OUT, Dinheiro.deTexto("1.00"), "x", DATA, META, FormaPagamento.PIX, CARTAO, Set.of());
+        recusa(TipoEspaco.HOME, pix, "Cartão só vale");
+    }
+
+    @Test
+    void entradaNaoTemCartao() {
+        var entrada = new DadosDoLancamento(Direcao.IN, Dinheiro.deTexto("1.00"), "x", DATA, null, null, CARTAO, Set.of());
+        recusa(TipoEspaco.HOME, entrada, "Entrada");
+    }
+
+    @Test
+    void creditoComCartaoValeEEntraNaFatura() {
+        var l = Lancamento.novo(ID, ESPACO, TipoEspaco.HOME, noCredito(CARTAO)).naFatura(FATURA);
+
+        assertThat(l.cartaoId()).isEqualTo(CARTAO);
+        assertThat(l.faturaId()).isEqualTo(FATURA);
+        assertThat(l.ehParcela()).isFalse();
+    }
+
+    @Test
+    void soGastoNoCartaoTemFaturaOuParcela() {
+        var pix = Lancamento.novo(ID, ESPACO, TipoEspaco.HOME, saidaValida());
+
+        assertThatThrownBy(() -> pix.naFatura(FATURA)).isInstanceOf(RegraDeNegocio.class);
+        assertThatThrownBy(() -> pix.comoParcela(new Parcela(UUID.randomUUID(), 1, 3))).isInstanceOf(RegraDeNegocio.class);
+    }
+
+    @Test
+    void editarMantemAFaturaETrocarParaPixTiraACompraDoCartao() {
+        var l = Lancamento.novo(ID, ESPACO, TipoEspaco.HOME, noCredito(CARTAO)).naFatura(FATURA);
+
+        assertThat(l.editar(TipoEspaco.HOME, noCredito(CARTAO)).faturaId()).isEqualTo(FATURA);
+        var pix = l.editar(TipoEspaco.HOME, saidaValida());
+        assertThat(pix.cartaoId()).isNull();
+        assertThat(pix.faturaId()).isNull();
+    }
+
+    @Test
+    void soValorDataDirecaoFormaECartaoMexemNaFatura() {
+        var antes = Lancamento.novo(ID, ESPACO, TipoEspaco.HOME, noCredito(CARTAO));
+        var d = antes.dados();
+
+        var outraDescricaoMetaETags = new DadosDoLancamento(
+                d.direcao(), d.valor(), "Outra", d.data(), UUID.randomUUID(), d.formaPagamento(), d.cartaoId(), Set.of(UUID.randomUUID()));
+        assertThat(antes.editar(TipoEspaco.HOME, outraDescricaoMetaETags).mexeNaFaturaEmRelacaoA(antes)).isFalse();
+
+        var outroValor = new DadosDoLancamento(
+                d.direcao(), Dinheiro.deTexto("24.00"), d.descricao(), d.data(), d.metaId(), d.formaPagamento(), d.cartaoId(), d.tagIds());
+        var outraData = new DadosDoLancamento(
+                d.direcao(), d.valor(), d.descricao(), DATA.plusDays(1), d.metaId(), d.formaPagamento(), d.cartaoId(), d.tagIds());
+        var outroCartao = new DadosDoLancamento(
+                d.direcao(), d.valor(), d.descricao(), d.data(), d.metaId(), d.formaPagamento(), UUID.randomUUID(), d.tagIds());
+        assertThat(antes.editar(TipoEspaco.HOME, outroValor).mexeNaFaturaEmRelacaoA(antes)).isTrue();
+        assertThat(antes.editar(TipoEspaco.HOME, outraData).mexeNaFaturaEmRelacaoA(antes)).isTrue();
+        assertThat(antes.editar(TipoEspaco.HOME, outroCartao).mexeNaFaturaEmRelacaoA(antes)).isTrue();
+        assertThat(antes.editar(TipoEspaco.HOME, saidaValida()).mexeNaFaturaEmRelacaoA(antes)).isTrue();
     }
 
     @Test

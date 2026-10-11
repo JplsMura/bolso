@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { type SlugDoEspaco, useEspacoAtual } from '@/shared/lib/espacoAtual'
 import { useDebounce } from '@/shared/lib/useDebounce'
-import { useLancamentosDoMes, useMetas, useTags } from '../api/consultas'
+import { useCartoes, useLancamentosDoMes, useMetas, useTags } from '../api/consultas'
 import { diaDe } from '../model/datas'
 import { SEM_FILTROS, temFiltro } from '../model/filtros'
 import { mesDe, rotuloLongoDoMes } from '../model/mes'
@@ -27,6 +27,7 @@ export function ListaDeLancamentosPage({ espaco, mes }: Props) {
   const consulta = useLancamentosDoMes(espacoId, mesAtivo, { ...filtros, texto: textoAssentado })
   const metas = useMetas(espacoId, tipo === 'HOME')
   const tags = useTags(espacoId)
+  const cartoes = useCartoes(espacoId)
 
   return (
     <>
@@ -64,6 +65,7 @@ export function ListaDeLancamentosPage({ espaco, mes }: Props) {
         aoMudar={setFiltros}
         metas={metas.data ?? []}
         tags={tags.data ?? []}
+        cartoes={cartoes.data ?? []}
       />
 
       {consulta.isPending && (
@@ -93,6 +95,7 @@ export function ListaDeLancamentosPage({ espaco, mes }: Props) {
             <ListaPorDia
               itens={consulta.data.itens}
               metas={metas.data ?? []}
+              cartoes={cartoes.data ?? []}
               espaco={espaco}
               hoje={diaDe(agora)}
             />

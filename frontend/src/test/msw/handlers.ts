@@ -10,4 +10,8 @@ export const ESPACOS_PADRAO = [
 export const URL_ESPACOS = '*/api/v1/espacos'
 
 /** Respostas que todo teste tem de graça; um teste sobrescreve com server.use(...). */
-export const handlersPadrao = [http.get(URL_ESPACOS, () => HttpResponse.json(ESPACOS_PADRAO))]
+export const handlersPadrao = [
+  http.get(URL_ESPACOS, () => HttpResponse.json(ESPACOS_PADRAO)),
+  // a lista de lançamentos e o formulário consultam os cartões; sem cartão cadastrado por padrão
+  http.get('*/api/v1/espacos/:espacoId/cartoes', () => HttpResponse.json([])),
+]
