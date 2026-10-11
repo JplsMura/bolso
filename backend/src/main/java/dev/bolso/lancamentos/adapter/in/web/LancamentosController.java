@@ -57,6 +57,7 @@ class LancamentosController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     ResponseEntity<LancamentoResponse> criarLancamento(
             @PathVariable UUID espacoId, @Valid @RequestBody NovoLancamentoRequest corpo) {
         var item = gravar.lancar(espacoId, corpo.paraDados());

@@ -1,6 +1,6 @@
 # 003 · Lançamentos
 
-Status: **implementada, aguardando verificação na máquina** (aprovada em 09/10/2026) · 09/10/2026 · João Pedro
+Status: **concluída** (aprovada e implementada em 09/10/2026, verificada em 11/10/2026) · 09/10/2026 · João Pedro
 
 ## Objetivo
 
@@ -181,11 +181,11 @@ Cartões, fatura e `card_id` (004); parcelas (RF21) e presets (RF20); percentuai
 - Front: `npm test` (101 testes, incluindo axe na lista, no formulário e na confirmação de exclusão), `lint` sem avisos, `typecheck` e Prettier passando.
 - Revisão por um agente separado (que não escreveu o código): primeira rodada reprovou; os bloqueios (lock explícito somando versão duas vezes, 409 para `OptimisticLockingFailureException`, `mes` mal documentado, transações de leitura, vazamento de dados ao trocar de espaço no front) foram corrigidos.
 
-**Pendente na máquina do João Pedro** (só o `mvnw verify` e o Docker confirmam)
-- [ ] `cd backend && mvnw.cmd verify` (Docker aberto): critérios 1 a 9. Maior risco: `ddl-auto: validate` contra `LancamentoEntity`, `ModularityTest` com 6 módulos, regra nova do ArchUnit, `LancamentosVersaoIT` (commits reais; confere versão 0 → 1 → 2 e 409 com versão velha), o 400 de `mes` e o OpenAPI (`required`, `mes` como string).
-- [ ] `cd frontend && npm ci && npm test && npm run lint && npm run typecheck && npm run build`.
-- [ ] `docker compose up --build`; com a API nova no ar, `npm run gen:api` e **conferir que `schema.d.ts` não muda** (rodar só com a API nova no ar, senão o arquivo sai vazio).
-- [ ] Critérios 16 a 18 à mão.
+**Verificado na máquina do João Pedro em 11/10/2026** (ele rodou tudo e confirmou; a tela da Casa com lista, totais e filtros foi vista funcionando no Docker)
+- [x] `cd backend && mvnw.cmd verify` (Docker aberto): critérios 1 a 9. Maior risco: `ddl-auto: validate` contra `LancamentoEntity`, `ModularityTest` com 6 módulos, regra nova do ArchUnit, `LancamentosVersaoIT` (commits reais; confere versão 0 → 1 → 2 e 409 com versão velha), o 400 de `mes` e o OpenAPI (`required`, `mes` como string).
+- [x] `cd frontend && npm ci && npm test && npm run lint && npm run typecheck && npm run build`.
+- [x] `docker compose up --build`; com a API nova no ar, `npm run gen:api` e **conferir que `schema.d.ts` não muda** (rodar só com a API nova no ar, senão o arquivo sai vazio).
+- [x] Critérios 16 a 18 à mão.
 
 **Mudanças em relação ao texto acima**
 - `Dinheiro` aceita zero e negativos (totais e `sobra`); `deTexto` recusa `-`; o lançamento exige valor positivo. Critério 3 ajustado.
@@ -196,6 +196,6 @@ Cartões, fatura e `card_id` (004); parcelas (RF21) e presets (RF20); percentuai
 - `mes` é `String` validada (`yyyy-MM`, 400 se mal formada), pois `YearMonth` saía mal documentado no OpenAPI.
 - A versão sobe sozinha pelo `@Version` porque `atualizadoEm` sempre muda; não há `em.lock`.
 - `spring.jackson.default-property-inclusion: non_null`.
-- `schema.d.ts` foi escrito à mão no estilo do gerado (sem Maven não havia API para gerar).
+- `schema.d.ts` foi escrito à mão na sessão (sem Maven não havia API para gerar). Em 11/10 o João Pedro rodou `npm run gen:api` e o arquivo gerado substituiu o meu. Comparado por tipos, só diferiam os `POST` de lançamento e de tag, documentados como `200` em vez de `201`; os `components` eram idênticos. Corrigido com `@ResponseStatus(HttpStatus.CREATED)` nos dois controllers; falta regerar o `schema.d.ts` com a API reconstruída (o front não depende disso, o `openapi-fetch` aceita qualquer 2xx).
 - Front: os tipos da API usados pelo `model` ficam em `model/tipos.ts`, e o ESLint ganhou a categoria `tipos-da-api` para o `schema.d.ts`. A lista descarta o cache anterior ao trocar de espaço.
 - Os docs de requisito (`01-requisitos.md`, `CONTEXTO.md`) ainda dizem "categoria" (RF01, RF17, RF19); não foram editados de propósito. A modelagem (`02`) e a arquitetura (`03`) foram atualizadas.
