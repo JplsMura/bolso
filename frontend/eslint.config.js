@@ -7,10 +7,14 @@ import tseslint from 'typescript-eslint'
 
 /**
  * Fronteiras do front (docs/04): uma feature não importa outra; shared não importa features;
- * ui/pages de uma feature não chamam a API direto (passam pelos hooks de api/).
+ * ui/pages de uma feature não chamam a API direto (passam pelos hooks de api/). Os tipos gerados do
+ * contrato (schema.d.ts) valem para model/ e api/; o cliente (client.ts) só para api/.
  * Uma política por feature, sem templates, para a regra ficar legível.
  */
 const FEATURES = ['identidade', 'lancamentos', 'cartoes', 'orcamento', 'faturamento']
+
+/** O arquivo de tipos gerado do contrato (schema.d.ts), reconhecido por categoria de arquivo. */
+const TIPOS_DA_API = { file: { categories: 'tipos-da-api' } }
 
 const el = (type, feature) => ({
   element: feature ? { type, captured: { feature } } : { type },
@@ -27,11 +31,13 @@ const politicasDasFeatures = FEATURES.flatMap((f) => [
   },
   {
     from: el('feature-api', f),
-    allow: { to: [el('feature-api', f), el('feature-model', f), el('shared'), el('shared-api')] },
+    allow: {
+      to: [el('feature-api', f), el('feature-model', f), el('shared'), el('shared-api'), TIPOS_DA_API],
+    },
   },
   {
     from: el('feature-model', f),
-    allow: { to: [el('feature-model', f), el('shared')] },
+    allow: { to: [el('feature-model', f), el('shared'), TIPOS_DA_API] },
   },
 ])
 
@@ -87,6 +93,8 @@ export default tseslint.config(
       'boundaries/files': [
         { category: 'entry', pattern: 'src/*.{ts,tsx}' },
         { category: 'teste', pattern: '**/*.test.{ts,tsx}' },
+        // tipos gerados do contrato: model/ e api/ podem vê-los; o cliente (client.ts) só a api/
+        { category: 'tipos-da-api', pattern: 'src/shared/api/schema.d.ts' },
       ],
     },
     rules: {
@@ -114,8 +122,11 @@ export default tseslint.config(
             },
             { from: el('routes'), allow: { to: [el('app'), el('routes'), el('shared'), el('feature')] } },
             { from: el('shared'), allow: { to: [el('shared')] } },
-            { from: el('shared-api'), allow: { to: [el('shared-api'), el('shared')] } },
-            { from: el('test'), allow: { to: [el('test'), el('app'), el('shared'), el('shared-api')] } },
+            { from: el('shared-api'), allow: { to: [el('shared-api'), el('shared'), TIPOS_DA_API] } },
+            {
+              from: el('test'),
+              allow: { to: [el('test'), el('app'), el('shared'), el('shared-api'), TIPOS_DA_API] },
+            },
             ...politicasDasFeatures,
             // testes de qualquer pasta podem usar os utilitários de src/test
             { from: { file: { categories: 'teste' } }, allow: { to: [el('test')] } },

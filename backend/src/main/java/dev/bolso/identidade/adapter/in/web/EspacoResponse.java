@@ -1,8 +1,8 @@
 package dev.bolso.identidade.adapter.in.web;
 
 import dev.bolso.identidade.Papel;
+import dev.bolso.identidade.TipoEspaco;
 import dev.bolso.identidade.domain.Espaco;
-import dev.bolso.identidade.domain.TipoEspaco;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 

@@ -6,7 +6,7 @@
 
 O banco é PostgreSQL, organizado em cinco schemas que espelham os contextos do sistema, e todo dado pertence a um **espaço** (workspace), nunca direto a um usuário. Assim, compartilhar o orçamento com outra pessoa depois é só adicionar um membro, sem migrar dados.
 
-- **Schemas:** `identity` (usuários e espaços), `finance` (lançamentos, categorias, metas, contas e cartões), `billing` (empresa, notas e tomadores), `planning` (cenários e metas de reserva, depois) e `platform` (parâmetros fiscais e auditoria).
+- **Schemas:** `identity` (usuários e espaços), `finance` (lançamentos, tags, metas, contas e cartões), `billing` (empresa, notas e tomadores), `planning` (cenários e metas de reserva, depois) e `platform` (parâmetros fiscais e auditoria).
 - **Tabelas pequenas e estreitas:** o que muda pouco (cadastros) fica separado do que cresce (lançamentos), e arquivos de nota ficam no disco, não no banco.
 - **Chaves:** UUID v7 gerado pela aplicação. Ele ordena por data de criação, o que mantém os índices compactos, ao contrário do UUID aleatório.
 - **Dinheiro:** `numeric(14,2)` em reais, sempre positivo, com a direção (entrada ou saída) em coluna própria. Nunca `float`.
@@ -20,17 +20,19 @@ O banco é PostgreSQL, organizado em cinco schemas que espelham os contextos do 
 
 > [Diagrama/widget no app: MER · entidades e relacionamentos]
 
-O espaço é a raiz: usuários entram nele como membros, com um papel, e os outros contextos guardam o `espaco_id`. O lançamento é o centro das finanças; categoria, conta, recorrência, fatura e parcelamento dizem de onde ele vem e como é agrupado.
+O espaço é a raiz: usuários entram nele como membros, com um papel, e os outros contextos guardam o `espaco_id`. O lançamento é o centro das finanças; meta, tag, conta, recorrência, fatura e parcelamento dizem de onde ele vem e como é agrupado.
 
 ## DER: núcleo financeiro
 
 > [Diagrama/widget no app: DER · núcleo financeiro, com colunas e chaves estrangeiras]
 
-A tabela `transaction` guarda só ids e valores, sem texto repetido: nome de categoria, conta ou cartão vive no cadastro correspondente. Por isso ela cresce em linhas, mas continua estreita, e os cadastros ficam pequenos o bastante para ficar sempre em memória.
+A tabela `transaction` guarda só ids e valores, sem texto repetido: nome de meta, tag, conta ou cartão vive no cadastro correspondente. Por isso ela cresce em linhas, mas continua estreita, e os cadastros ficam pequenos o bastante para ficar sempre em memória.
+
+> **Sem tabela `category` (decisão da spec 003).** O lançamento aponta direto para a meta (`goal_id`) e o detalhe (Luz, Alimentação, Uber) vive nas tags. Também não há coluna `nature`: fixo ou variável vem da tag (`cost_type`), parcela vem do parcelamento e investimento é a meta Liberdade Financeira.
 
 ## Dicionário de tabelas
 
-São 29 tabelas em cinco schemas, e a maior parte é de cadastro com poucas linhas. Só `finance.transaction` e `platform.audit_log` crescem de verdade.
+São 28 tabelas em cinco schemas, e a maior parte é de cadastro com poucas linhas. Só `finance.transaction` e `platform.audit_log` crescem de verdade.
 
 ### identity
 
@@ -51,13 +53,12 @@ São 29 tabelas em cinco schemas, e a maior parte é de cadastro com poucas linh
 | `budget_goal` | As 6 metas do orçamento (Custos Fixos, Conforto etc.) | `id`, `workspace_id`, `name`, `color`, `sort_order` |
 | `budget_goal_percent` | Percentual de cada meta por mês, com histórico | PK (`goal_id`, `reference_month`), `percent` numeric(5,2) |
 | month_closing_goal | Foto de cada meta no fechamento do mês: o histórico não muda quando você altera percentuais depois | PK (workspace_id, reference_month, goal_id), percent, income_base (receita do mês), budget_amount (percent × receita), spent_amount, balance |
-| `category` | Categorias de lançamento, dentro de uma meta | `id`, `workspace_id`, `goal_id` (nulo para entradas), `name`, `kind` (INCOME ou EXPENSE), `archived_at` |
 | tag | Etiqueta livre além das 6 metas (Luz, Alimentação, Uber), ligada ao lançamento por transaction_tag (N:N) | id, workspace_id, name (único por espaço), cost_type (FIXED, VARIABLE ou nulo), archived_at |
-| `account` | Conta bancária ou carteira (fica para depois: no MVP só gasto por categoria) | `id`, `workspace_id`, `name`, `type`, `institution`, `opening_balance`, `opening_date`, `archived_at` |
+| `account` | Conta bancária ou carteira (fica para depois: no MVP só gasto por meta e tag) | `id`, `workspace_id`, `name`, `type`, `institution`, `opening_balance`, `opening_date`, `archived_at` |
 | `credit_card` | Cartão de crédito | `id`, `workspace_id`, `name`, `brand`, `last4`, `closing_day`, `due_day`, `credit_limit`, `archived_at` |
 | `card_invoice` | Fatura de um cartão em um mês (OPEN, CLOSED ou PAID). Única por (card_id, reference_month), criada na primeira compra do mês. Ao fechar guarda total_amount congelado; ao pagar guarda paid_amount e paid_on. O limite usado do cartão é a soma das faturas não pagas, incluindo parcelas futuras já lançadas | `id`, `workspace_id`, `card_id`, `reference_month`, `closing_date`, `due_date`, `status` (OPEN, CLOSED ou PAID), `paid_on` |
-| `installment_plan` | Compra parcelada | `id`, `workspace_id`, `card_id`, `category_id`, `description`, `total_amount`, `installments`, `first_month` |
-| `recurring_rule` | Preset de lançamento mensal (luz, água, internet, assinaturas): ao abrir o mês você usa o preset, vem com o último valor lançado e edita antes de confirmar | `id`, `workspace_id`, `description`, `amount`, `direction`, `category_id`, `account_id` ou `card_id`, `day_of_month`, `starts_on`, `ends_on` |
+| `installment_plan` | Compra parcelada | `id`, `workspace_id`, `card_id`, `goal_id`, `description`, `total_amount`, `installments`, `first_month` |
+| `recurring_rule` | Preset de lançamento mensal (luz, água, internet, assinaturas): ao abrir o mês você usa o preset, vem com o último valor lançado e edita antes de confirmar | `id`, `workspace_id`, `description`, `amount`, `direction`, `goal_id`, `account_id` ou `card_id`, `day_of_month`, `starts_on`, `ends_on` |
 | `transaction` | O lançamento: a tabela que cresce | Ver o DER abaixo. Todo lançamento de saída tem forma de pagamento (payment_method: PIX, DEBIT, CREDIT, CASH, BOLETO, TRANSFER ou OTHER) e, quando for CREDIT, o cartão (card_id). A fatura (invoice_id) é calculada pelo dia de fechamento do cartão. A meta e as tags continuam independentes da forma de pagamento |
 | `import_batch` | Cada arquivo importado, para não importar duas vezes | `id`, `workspace_id`, `source`, `file_sha256`, `imported_at`, `row_count` |
 | `month_closing` | Totais congelados de um mês fechado (as metas congeladas ficam em month_closing_goal) | PK (`workspace_id`, `reference_month`), `status`, `total_in`, `total_out`, `surplus`, `closed_at` |
@@ -96,13 +97,14 @@ A regra geral: toda chave composta começa por `workspace_id`, porque toda consu
 
 | Índice | Tabela | Consulta que atende |
 | --- | --- | --- |
-| (`workspace_id`, `reference_month`, `category_id`) INCLUDE (`amount`, `direction`), parcial | `transaction` | A tela do mês e a soma por categoria e por meta, lida só no índice |
+| (`workspace_id`, `reference_month`, `goal_id`) INCLUDE (`amount`, `direction`), parcial | `transaction` | A tela do mês e a soma por meta, lida só no índice |
 | (`workspace_id`, `occurred_on` DESC), parcial | `transaction` | Lançamentos do dia e transações recentes |
 | (`invoice_id`), parcial | `transaction` | Itens e total de uma fatura |
 | único (`installment_plan_id`, `installment_no`) | `transaction` | Uma parcela por número, sem duplicar |
 | único (`recurring_rule_id`, `reference_month`), parcial | `transaction` | O job de recorrência pode rodar duas vezes sem duplicar |
 | único (`workspace_id`, `source`, `source_ref`), parcial | `transaction` | Importação e sincronização sem duplicar lançamentos |
-| único (`workspace_id`, `lower(name)`) | `category` | Sem duas categorias com o mesmo nome |
+| único (`workspace_id`, `lower(name)`) | `budget_goal` | Sem duas metas com o mesmo nome |
+| único (`workspace_id`, `name`) com `name` citext | `tag` | Sem duas tags com o mesmo nome no espaço, sem diferenciar maiúsculas |
 | único (`card_id`, `reference_month`) | `card_invoice` | Uma fatura por cartão e mês |
 | (`workspace_id`, `due_date`) | `card_invoice` | Lembrete de vencimento |
 | (`company_id`, `issue_date`) | `issued_invoice` | Faturamento acumulado do ano e teto do MEI |
@@ -116,7 +118,9 @@ A regra geral: toda chave composta começa por `workspace_id`, porque toda consu
 
 - `CHECK (amount > 0)` e `CHECK (direction IN ('IN','OUT'))` em `transaction`.
 - `CHECK (invoice_id IS NULL OR account_id IS NULL)`: compra no cartão não sai de uma conta até a fatura ser paga.
-- `CHECK (direction = 'OUT' OR nature IS NULL)`: só saídas têm natureza (fixo, variável, parcela, investimento).
+- `CHECK (direction = 'OUT' OR goal_id IS NULL)`: entrada não tem meta.
+- `CHECK ((direction = 'OUT') = (payment_method IS NOT NULL))`: toda saída tem forma de pagamento e entrada não tem.
+- Chaves estrangeiras compostas com `workspace_id` (`transaction.goal_id` → `budget_goal`, e as de `transaction_tag` para `transaction` e `tag`): um lançamento não usa meta nem tag de outro espaço, mesmo que um bug passe pela aplicação.
 - `EXCLUDE USING gist` em `company_regime` para impedir períodos de regime sobrepostos.
 - Chaves estrangeiras com `ON DELETE RESTRICT`, nunca `CASCADE`, em tudo que é dinheiro. `CASCADE` só em dependentes puros, como `scenario_assumption`.
 
@@ -153,7 +157,7 @@ O modelo atende bem um servidor só por muito tempo: com cerca de 100 lançament
 - **Mudança destrutiva em duas etapas:** primeiro adiciona e passa a gravar nos dois lugares, depois remove o antigo em outra versão.
 - **Nomes:** `snake_case`, tabelas no singular, `fk_<tabela>_<coluna>`, `ix_<tabela>_<colunas>` e `ux_<tabela>_<colunas>`.
 - **Teste de migração:** a cada build, o Testcontainers sobe um PostgreSQL vazio e aplica todas as migrações do zero.
-- **Seeds:** as 6 metas e as categorias padrão são criadas pela aplicação ao criar um espaço, não por migração. Os parâmetros fiscais de 2027 entram por migração, com a fonte anotada em `source_note`.
+- **Seeds:** as 6 metas da Casa entram por migração (V5, com ids fixos); a Empresa não tem metas. O dono local e os dois espaços iniciais também (V3). Os parâmetros fiscais de 2027 entram por migração, com a fonte anotada em `source_note`.
 - **Saldos iniciais:** o histórico começa em outubro de 2026 e entra pela tela de primeira configuração (RF16), não por script.
 - **Dados fictícios:** testes e demonstração usam um espaço de exemplo; seus valores reais ficam só no banco local.
 
@@ -161,7 +165,7 @@ O modelo atende bem um servidor só por muito tempo: com cerca de 100 lançament
 
 - [x] Teto do MEI pela data de emissão da nota (decidido). Você emite no dia 1 e recebe no mesmo mês, então só muda algo em nota de fim de ano paga em janeiro, como o 14º; o modelo guarda as duas datas, e vale conferir esse caso com o contador.
 - [x] Percentuais das 6 metas editáveis por mês, com uma barra que obriga a soma a fechar 100% (decidido); o modelo já guarda por mês.
-- [x] Só gastos por categoria no MVP; conta e saldo por conta ficam para depois (decidido).
+- [x] Só gastos por meta e tag no MVP; conta e saldo por conta ficam para depois (decidido).
 - [ ] Dois espaços, Casa e Empresa, trocados por menu, com o repasse da empresa entrando na casa como entrada (decidido).
 - [x] O DAS sai da conta PJ, no espaço Empresa; contador e INSS não existem este ano e entram em 2027 (decidido)
 - [x] Repasse mensal de valor fixo, como preset na Empresa e entrada na Casa (decidido)
