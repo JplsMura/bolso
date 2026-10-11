@@ -7,6 +7,7 @@ import dev.bolso.lancamentos.domain.DadosDoLancamento;
 import dev.bolso.lancamentos.domain.Direcao;
 import dev.bolso.lancamentos.domain.FormaPagamento;
 import dev.bolso.lancamentos.domain.Lancamento;
+import dev.bolso.lancamentos.domain.Parcela;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
@@ -42,6 +43,21 @@ class JpaLancamentosRepository implements LancamentosRepository {
     }
 
     @Override
+    public List<Lancamento> parcelasDe(UUID espacoId, UUID parcelamentoId) {
+        return em.createQuery("""
+                        select l from LancamentoEntity l
+                         where l.parcelamentoId = :parcelamento and l.espacoId = :espaco and l.excluidoEm is null
+                         order by l.numeroDaParcela""",
+                        LancamentoEntity.class)
+                .setParameter("parcelamento", parcelamentoId)
+                .setParameter("espaco", espacoId)
+                .getResultList()
+                .stream()
+                .map(this::paraDominio)
+                .toList();
+    }
+
+    @Override
     public void salvar(Lancamento l, Instant agora) {
         var entidade = em.find(LancamentoEntity.class, l.id());
         var nova = entidade == null;
@@ -58,6 +74,12 @@ class JpaLancamentosRepository implements LancamentosRepository {
         entidade.mesReferencia = l.mesReferencia().atDay(1);
         entidade.metaId = l.metaId();
         entidade.formaPagamento = l.formaPagamento() == null ? null : l.formaPagamento().name();
+        entidade.cartaoId = l.cartaoId();
+        entidade.faturaId = l.faturaId();
+        if (nova && l.parcela() != null) {
+            entidade.parcelamentoId = l.parcela().parcelamentoId();
+            entidade.numeroDaParcela = l.parcela().numero();
+        }
         entidade.atualizadoEm = agora;
 
         try {
@@ -108,8 +130,21 @@ class JpaLancamentosRepository implements LancamentosRepository {
                 e.data,
                 e.metaId,
                 e.formaPagamento == null ? null : FormaPagamento.valueOf(e.formaPagamento),
+                e.cartaoId,
                 tagIds);
-        return Lancamento.reconstituir(e.id, e.espacoId, dados, e.versao);
+        return Lancamento.reconstituir(e.id, e.espacoId, dados, e.faturaId, parcelaDe(e), e.versao);
+    }
+
+    private Parcela parcelaDe(LancamentoEntity e) {
+        if (e.parcelamentoId == null) {
+            return null;
+        }
+        var total = jdbc.sql("SELECT installments FROM finance.installment_plan WHERE id = :id AND workspace_id = :espaco")
+                .param("id", e.parcelamentoId)
+                .param("espaco", e.espacoId)
+                .query(Integer.class)
+                .single();
+        return new Parcela(e.parcelamentoId, e.numeroDaParcela, total);
     }
 
     private void regravarTags(Lancamento l) {

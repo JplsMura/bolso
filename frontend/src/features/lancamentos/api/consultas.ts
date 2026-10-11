@@ -1,15 +1,23 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { chaveDosCartoes } from '@/shared/api/cartoes'
 import { api } from '@/shared/api/client'
 import type { Filtros } from '../model/filtros'
 import { falhar } from './erro'
 import type {
   EditarLancamentoApi,
+  EditarParcelamentoApi,
+  FaturaDaCompraApi,
   LancamentoApi,
   ListaDoMesApi,
-  MetaApi,
   NovoLancamentoApi,
+  NovoParcelamentoApi,
+  ParcelamentoApi,
   TagApi,
 } from '../model/tipos'
+
+// metas e cartões vivem em shared (a feature cartoes também usa); a ui desta feature os pega por aqui
+export { useCartoes } from '@/shared/api/cartoes'
+export { useMetas } from '@/shared/api/metas'
 
 const RAIZ = 'lancamentos'
 
@@ -19,7 +27,15 @@ const chaves = {
     [RAIZ, espacoId, 'lista', mes, filtros] as const,
   um: (espacoId: string, id: string) => [RAIZ, espacoId, 'um', id] as const,
   tags: (espacoId: string) => [RAIZ, espacoId, 'tags'] as const,
-  metas: (espacoId: string) => [RAIZ, espacoId, 'metas'] as const,
+  parcelamento: (espacoId: string, id: string) => [RAIZ, espacoId, 'parcelamento', id] as const,
+}
+
+/** Gravar um gasto mexe na lista e, se for no cartão, no limite e nas faturas. */
+function invalidarTudo(cliente: QueryClient, espacoId: string) {
+  return Promise.all([
+    cliente.invalidateQueries({ queryKey: chaves.tudo(espacoId) }),
+    cliente.invalidateQueries({ queryKey: chaveDosCartoes(espacoId) }),
+  ])
 }
 
 const MSG_CARREGAR = 'Não foi possível carregar os lançamentos.'
@@ -39,6 +55,7 @@ export function useLancamentosDoMes(espacoId: string, mes: string, filtros: Filt
         ...(filtros.tagId ? { tagId: filtros.tagId } : {}),
         ...(filtros.pagamento ? { pagamento: filtros.pagamento } : {}),
         ...(filtros.direcao ? { direcao: filtros.direcao } : {}),
+        ...(filtros.cartaoId ? { cartaoId: filtros.cartaoId } : {}),
       }
       const { data, error, response } = await api.GET('/api/v1/espacos/{espacoId}/lancamentos', {
         params: { path: { espacoId }, query },
@@ -58,21 +75,6 @@ export function useLancamento(espacoId: string, id: string) {
         params: { path: { espacoId, id } },
       })
       if (!response.ok || !data) falhar(response, error, 'Não foi possível carregar o lançamento.')
-      return data
-    },
-  })
-}
-
-/** `ativo` falso não consulta (a Empresa não tem metas). */
-export function useMetas(espacoId: string, ativo = true) {
-  return useQuery({
-    queryKey: chaves.metas(espacoId),
-    enabled: ativo,
-    queryFn: async (): Promise<MetaApi[]> => {
-      const { data, error, response } = await api.GET('/api/v1/espacos/{espacoId}/metas', {
-        params: { path: { espacoId } },
-      })
-      if (!response.ok || !data) falhar(response, error, 'Não foi possível carregar as metas.')
       return data
     },
   })
@@ -117,7 +119,7 @@ export function useCriarLancamento(espacoId: string) {
       if (!response.ok || !data) falhar(response, error, 'Não foi possível salvar o lançamento.')
       return data
     },
-    onSuccess: () => cliente.invalidateQueries({ queryKey: chaves.tudo(espacoId) }),
+    onSuccess: () => invalidarTudo(cliente, espacoId),
   })
 }
 
@@ -132,7 +134,7 @@ export function useEditarLancamento(espacoId: string, id: string) {
       if (!response.ok || !data) falhar(response, error, 'Não foi possível salvar o lançamento.')
       return data
     },
-    onSuccess: () => cliente.invalidateQueries({ queryKey: chaves.tudo(espacoId) }),
+    onSuccess: () => invalidarTudo(cliente, espacoId),
   })
 }
 
@@ -145,6 +147,83 @@ export function useExcluirLancamento(espacoId: string, id: string) {
       })
       if (!response.ok) falhar(response, error, 'Não foi possível excluir o lançamento.')
     },
-    onSuccess: () => cliente.invalidateQueries({ queryKey: chaves.tudo(espacoId) }),
+    onSuccess: () => invalidarTudo(cliente, espacoId),
+  })
+}
+
+/** Em qual fatura cai uma compra no cartão nessa data. Só consulta com cartão e data escolhidos. */
+export function useFaturaDaCompra(espacoId: string, cartaoId: string | null, data: string) {
+  const valida = /^\d{4}-\d{2}-\d{2}$/.test(data)
+  return useQuery({
+    queryKey: [...chaveDosCartoes(espacoId), 'fatura-da-compra', cartaoId, data] as const,
+    enabled: cartaoId !== null && valida,
+    queryFn: async (): Promise<FaturaDaCompraApi> => {
+      const {
+        data: fatura,
+        error,
+        response,
+      } = await api.GET('/api/v1/espacos/{espacoId}/cartoes/{id}/fatura-da-compra', {
+        params: { path: { espacoId, id: cartaoId ?? '' }, query: { data } },
+      })
+      if (!response.ok || !fatura) falhar(response, error, 'Não foi possível saber a fatura desta compra.')
+      return fatura
+    },
+  })
+}
+
+export function useCriarParcelamento(espacoId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: async (corpo: NovoParcelamentoApi): Promise<ParcelamentoApi> => {
+      const { data, error, response } = await api.POST('/api/v1/espacos/{espacoId}/parcelamentos', {
+        params: { path: { espacoId } },
+        body: corpo,
+      })
+      if (!response.ok || !data) falhar(response, error, 'Não foi possível salvar o parcelamento.')
+      return data
+    },
+    onSuccess: () => invalidarTudo(cliente, espacoId),
+  })
+}
+
+export function useParcelamento(espacoId: string, id: string) {
+  return useQuery({
+    queryKey: chaves.parcelamento(espacoId, id),
+    retry: false,
+    queryFn: async (): Promise<ParcelamentoApi> => {
+      const { data, error, response } = await api.GET('/api/v1/espacos/{espacoId}/parcelamentos/{id}', {
+        params: { path: { espacoId, id } },
+      })
+      if (!response.ok || !data) falhar(response, error, 'Não foi possível carregar o parcelamento.')
+      return data
+    },
+  })
+}
+
+export function useEditarParcelamento(espacoId: string, id: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: async (corpo: EditarParcelamentoApi): Promise<ParcelamentoApi> => {
+      const { data, error, response } = await api.PUT('/api/v1/espacos/{espacoId}/parcelamentos/{id}', {
+        params: { path: { espacoId, id } },
+        body: corpo,
+      })
+      if (!response.ok || !data) falhar(response, error, 'Não foi possível salvar o parcelamento.')
+      return data
+    },
+    onSuccess: () => invalidarTudo(cliente, espacoId),
+  })
+}
+
+export function useExcluirParcelamento(espacoId: string, id: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: async (): Promise<void> => {
+      const { error, response } = await api.DELETE('/api/v1/espacos/{espacoId}/parcelamentos/{id}', {
+        params: { path: { espacoId, id } },
+      })
+      if (!response.ok) falhar(response, error, 'Não foi possível excluir as parcelas.')
+    },
+    onSuccess: () => invalidarTudo(cliente, espacoId),
   })
 }

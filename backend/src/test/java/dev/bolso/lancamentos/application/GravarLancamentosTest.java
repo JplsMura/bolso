@@ -5,153 +5,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.bolso.compartilhado.Dinheiro;
 import dev.bolso.identidade.EspacoNaoEncontrado;
-import dev.bolso.identidade.IdentidadeApi;
 import dev.bolso.identidade.Papel;
 import dev.bolso.identidade.SemPermissao;
-import dev.bolso.identidade.TipoEspaco;
 import dev.bolso.lancamentos.domain.ConflitoDeVersao;
 import dev.bolso.lancamentos.domain.DadosDoLancamento;
+import dev.bolso.lancamentos.domain.DadosDoParcelamento;
 import dev.bolso.lancamentos.domain.Direcao;
+import dev.bolso.lancamentos.domain.FaturaFechada;
 import dev.bolso.lancamentos.domain.FormaPagamento;
 import dev.bolso.lancamentos.domain.Lancamento;
 import dev.bolso.lancamentos.domain.LancamentoNaoEncontrado;
 import dev.bolso.lancamentos.domain.RegraDeNegocio;
-import dev.bolso.orcamento.OrcamentoApi;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Casos de uso de escrita com portas falsas: nada de Spring nem banco. */
+/** Casos de uso de escrita com portas falsas ({@link PortasFalsas}): nada de Spring nem banco. */
 class GravarLancamentosTest {
 
-    static final UUID CASA = UUID.fromString("00000000-0000-7000-8000-0000000000c1");
-    static final UUID EMPRESA = UUID.fromString("00000000-0000-7000-8000-0000000000c2");
-    static final UUID META = UUID.fromString("00000000-0000-7000-8000-0000000000a1");
-    static final UUID TAG = UUID.fromString("00000000-0000-7000-8000-0000000000b1");
-    static final Instant AGORA = Instant.parse("2026-10-09T12:00:00Z");
+    static final UUID CASA = PortasFalsas.CASA;
+    static final UUID EMPRESA = PortasFalsas.EMPRESA;
+    static final UUID META = PortasFalsas.META;
+    static final UUID TAG = PortasFalsas.TAG;
+    static final UUID CARTAO = PortasFalsas.CARTAO;
 
-    Papel papelNaCasa;
-    final Set<UUID> metasDaCasa = Set.of(META);
-    final Set<UUID> tagsDaCasa = Set.of(TAG);
-    final Map<UUID, Lancamento> gravados = new HashMap<>();
-    final List<UUID> excluidos = new ArrayList<>();
+    PortasFalsas portas;
+    Map<UUID, Lancamento> gravados;
+    List<UUID> excluidos;
     GravarLancamentos gravar;
 
     @BeforeEach
     void monta() {
-        papelNaCasa = Papel.OWNER;
-        gravados.clear();
-        excluidos.clear();
-
-        IdentidadeApi identidade = new IdentidadeApi() {
-            @Override
-            public UUID usuarioAtualId() {
-                return UUID.randomUUID();
-            }
-
-            @Override
-            public Papel papelNoEspaco(UUID espacoId) {
-                if (!espacoId.equals(CASA) && !espacoId.equals(EMPRESA)) {
-                    throw new EspacoNaoEncontrado(espacoId);
-                }
-                return papelNaCasa;
-            }
-
-            @Override
-            public TipoEspaco tipoDoEspaco(UUID espacoId) {
-                papelNoEspaco(espacoId);
-                return espacoId.equals(CASA) ? TipoEspaco.HOME : TipoEspaco.COMPANY;
-            }
-
-            @Override
-            public void exigirPermissaoDeEscrita(UUID espacoId) {
-                var papel = papelNoEspaco(espacoId);
-                if (!papel.podeEscrever()) {
-                    throw new SemPermissao(espacoId, papel);
-                }
-            }
-        };
-        OrcamentoApi orcamento = (espacoId, metaId) -> espacoId.equals(CASA) && metasDaCasa.contains(metaId);
-        TagsRepository tags = new TagsRepository() {
-            @Override
-            public List<dev.bolso.lancamentos.domain.Tag> listarAtivas(UUID espacoId) {
-                return List.of();
-            }
-
-            @Override
-            public boolean existeNome(UUID espacoId, String nome) {
-                return false;
-            }
-
-            @Override
-            public void salvar(dev.bolso.lancamentos.domain.Tag tag) {}
-
-            @Override
-            public boolean todasAtivasNoEspaco(UUID espacoId, Set<UUID> tagIds) {
-                return espacoId.equals(CASA) ? tagsDaCasa.containsAll(tagIds) : tagIds.isEmpty();
-            }
-        };
-        LancamentosRepository lancamentos = new LancamentosRepository() {
-            @Override
-            public Optional<Lancamento> buscar(UUID espacoId, UUID id) {
-                return Optional.ofNullable(gravados.get(id)).filter(l -> l.espacoId().equals(espacoId));
-            }
-
-            @Override
-            public void salvar(Lancamento lancamento, Instant agora) {
-                // como o JPA: a versão sobe a cada gravação de algo que já existia
-                var versao = gravados.containsKey(lancamento.id()) ? gravados.get(lancamento.id()).versao() + 1 : 0;
-                gravados.put(lancamento.id(), Lancamento.reconstituir(lancamento.id(), lancamento.espacoId(), dadosDe(lancamento), versao));
-            }
-
-            @Override
-            public boolean excluir(UUID espacoId, UUID id, Instant agora) {
-                if (buscar(espacoId, id).isEmpty()) {
-                    return false;
-                }
-                excluidos.add(id);
-                gravados.remove(id);
-                return true;
-            }
-        };
-        ConsultaDeLancamentos consulta = new ConsultaDeLancamentos() {
-            @Override
-            public ConsultaDoMes consultarMes(UUID espacoId, YearMonth mes, FiltrosDeLancamento filtros) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public Optional<ItemDeLancamento> buscar(UUID espacoId, UUID id) {
-                return Optional.ofNullable(gravados.get(id)).map(l -> new ItemDeLancamento(
-                        l.id(), l.direcao(), l.valor(), l.descricao(), l.data(), l.mesReferencia(), l.metaId(),
-                        l.formaPagamento(), List.of(), l.versao()));
-            }
-        };
-        Relogio relogio = new Relogio() {
-            @Override
-            public Instant agora() {
-                return AGORA;
-            }
-
-            @Override
-            public YearMonth mesAtual() {
-                return YearMonth.of(2026, 10);
-            }
-        };
-        gravar = new GravarLancamentos(lancamentos, tags, consulta, identidade, orcamento, relogio);
-    }
-
-    static DadosDoLancamento dadosDe(Lancamento l) {
-        return new DadosDoLancamento(l.direcao(), l.valor(), l.descricao(), l.data(), l.metaId(), l.formaPagamento(), l.tagIds());
+        portas = new PortasFalsas();
+        gravados = portas.gravados;
+        excluidos = portas.excluidos;
+        gravar = portas.gravarLancamentos();
     }
 
     static DadosDoLancamento gastoNaCasa() {
@@ -171,7 +64,7 @@ class GravarLancamentosTest {
 
     @Test
     void visualizadorNaoGrava() {
-        papelNaCasa = Papel.VIEWER;
+        portas.papel = Papel.VIEWER;
 
         assertThatThrownBy(() -> gravar.lancar(CASA, gastoNaCasa())).isInstanceOf(SemPermissao.class);
         assertThat(gravados).isEmpty();
@@ -255,7 +148,7 @@ class GravarLancamentosTest {
     @Test
     void visualizadorNaoExclui() {
         var criado = gravar.lancar(CASA, gastoNaCasa());
-        papelNaCasa = Papel.VIEWER;
+        portas.papel = Papel.VIEWER;
 
         assertThatThrownBy(() -> gravar.excluir(CASA, criado.id())).isInstanceOf(SemPermissao.class);
         assertThat(gravados).containsKey(criado.id());
@@ -266,5 +159,102 @@ class GravarLancamentosTest {
         var criado = gravar.lancar(CASA, gastoNaCasa());
 
         assertThatThrownBy(() -> gravar.excluir(EMPRESA, criado.id())).isInstanceOf(LancamentoNaoEncontrado.class);
+    }
+
+    // ---------- cartão de crédito (004) ----------
+
+    static DadosDoLancamento noCartao(String valor, String descricao, LocalDate data, UUID cartao) {
+        return new DadosDoLancamento(
+                Direcao.OUT, Dinheiro.deTexto(valor), descricao, data, META, FormaPagamento.CREDIT, cartao, Set.of());
+    }
+
+    @Test
+    void compraAntesDoFechamentoCaiNaFaturaDoMesENoDiaDoFechamentoNaSeguinte() {
+        var antes = gravar.lancar(CASA, noCartao("23.90", "Uber", LocalDate.of(2026, 10, 24), CARTAO));
+        var noDia = gravar.lancar(CASA, noCartao("39.90", "Streaming", LocalDate.of(2026, 10, 25), CARTAO));
+
+        assertThat(portas.mesDa(antes.faturaId())).isEqualTo(YearMonth.of(2026, 10));
+        assertThat(portas.mesDa(noDia.faturaId())).isEqualTo(YearMonth.of(2026, 11));
+        assertThat(antes.faturaMes()).isEqualTo(YearMonth.of(2026, 10));
+        assertThat(noDia.mesReferencia()).isEqualTo(YearMonth.of(2026, 10)); // o orçamento conta pela data da compra
+    }
+
+    @Test
+    void cartaoDeOutroEspacoERecusado() {
+        assertThatThrownBy(() -> gravar.lancar(CASA, noCartao("1.00", "x", LocalDate.of(2026, 10, 8), PortasFalsas.CARTAO_DA_EMPRESA)))
+                .isInstanceOf(RegraDeNegocio.class)
+                .hasMessageContaining("Cartão não encontrado");
+        assertThat(gravados).isEmpty();
+    }
+
+    @Test
+    void compraEmFaturaFechadaERecusada() {
+        portas.fechar(CARTAO, YearMonth.of(2026, 10));
+
+        assertThatThrownBy(() -> gravar.lancar(CASA, noCartao("1.00", "x", LocalDate.of(2026, 10, 8), CARTAO)))
+                .isInstanceOf(FaturaFechada.class)
+                .hasMessageContaining("outubro/2026")
+                .hasMessageContaining("Reabra");
+    }
+
+    @Test
+    void emFaturaFechadaDescricaoMetaETagsMudamMasValorDataCartaoEExclusaoNao() {
+        var criado = gravar.lancar(CASA, noCartao("23.90", "Uber", LocalDate.of(2026, 10, 8), CARTAO));
+        portas.fechar(CARTAO, YearMonth.of(2026, 10));
+
+        var soDescricao = new DadosDoLancamento(
+                Direcao.OUT, Dinheiro.deTexto("23.90"), "Uber para o centro", LocalDate.of(2026, 10, 8), META,
+                FormaPagamento.CREDIT, CARTAO, Set.of(TAG));
+        var editado = gravar.editar(CASA, criado.id(), soDescricao, criado.versao());
+        assertThat(editado.descricao()).isEqualTo("Uber para o centro");
+        assertThat(editado.faturaId()).isEqualTo(criado.faturaId());
+
+        var outroValor = noCartao("30.00", "Uber", LocalDate.of(2026, 10, 8), CARTAO);
+        var paraPix = new DadosDoLancamento(
+                Direcao.OUT, Dinheiro.deTexto("23.90"), "Uber", LocalDate.of(2026, 10, 8), META, FormaPagamento.PIX, Set.of());
+        assertThatThrownBy(() -> gravar.editar(CASA, criado.id(), outroValor, editado.versao())).isInstanceOf(FaturaFechada.class);
+        assertThatThrownBy(() -> gravar.editar(CASA, criado.id(), paraPix, editado.versao())).isInstanceOf(FaturaFechada.class);
+        assertThatThrownBy(() -> gravar.excluir(CASA, criado.id())).isInstanceOf(FaturaFechada.class);
+        assertThat(gravados).containsKey(criado.id());
+    }
+
+    @Test
+    void mudarADataLevaOGastoParaOutraFaturaAberta() {
+        var criado = gravar.lancar(CASA, noCartao("23.90", "Uber", LocalDate.of(2026, 10, 8), CARTAO));
+
+        var editado = gravar.editar(CASA, criado.id(), noCartao("23.90", "Uber", LocalDate.of(2026, 10, 28), CARTAO), criado.versao());
+
+        assertThat(portas.mesDa(editado.faturaId())).isEqualTo(YearMonth.of(2026, 11));
+    }
+
+    @Test
+    void trocarCreditoPorPixTiraOGastoDaFatura() {
+        var criado = gravar.lancar(CASA, noCartao("23.90", "Uber", LocalDate.of(2026, 10, 8), CARTAO));
+
+        var editado = gravar.editar(CASA, criado.id(), gastoNaCasa(), criado.versao());
+
+        assertThat(editado.cartaoId()).isNull();
+        assertThat(editado.faturaId()).isNull();
+    }
+
+    @Test
+    void parcelaNaoSeEditaNemSeExcluiPorAqui() {
+        var parcelamento = portas.gravarParcelamentos().criar(CASA, new DadosDoParcelamento(
+                Dinheiro.deTexto("30.00"), 3, 1, "Curso", LocalDate.of(2026, 10, 3), CARTAO, META, Set.of()));
+        var parcela = parcelamento.parcelas().getFirst().item();
+
+        assertThatThrownBy(() -> gravar.editar(CASA, parcela.id(), gastoNaCasa(), parcela.versao()))
+                .isInstanceOf(RegraDeNegocio.class)
+                .hasMessageContaining("parcelamento");
+        assertThatThrownBy(() -> gravar.excluir(CASA, parcela.id())).hasMessageContaining("parcelamento");
+    }
+
+    @Test
+    void naEmpresaGastoNoCartaoDaEmpresaVale() {
+        var dados = new DadosDoLancamento(
+                Direcao.OUT, Dinheiro.deTexto("10.00"), "Domínio", LocalDate.of(2026, 10, 9), null, FormaPagamento.CREDIT,
+                PortasFalsas.CARTAO_DA_EMPRESA, Set.of());
+
+        assertThat(gravar.lancar(EMPRESA, dados).faturaId()).isNotNull();
     }
 }

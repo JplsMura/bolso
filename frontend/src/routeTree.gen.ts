@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EspacoRouteRouteImport } from './routes/$espaco/route'
 import { Route as EspacoIndexRouteImport } from './routes/$espaco/index'
+import { Route as EspacoCartoesIndexRouteImport } from './routes/$espaco/cartoes/index'
+import { Route as EspacoCartoesIdRouteImport } from './routes/$espaco/cartoes/$id'
+import { Route as EspacoCartoesNovoRouteImport } from './routes/$espaco/cartoes/novo'
 import { Route as EspacoLancamentosIndexRouteImport } from './routes/$espaco/lancamentos/index'
 import { Route as EspacoLancamentosIdRouteImport } from './routes/$espaco/lancamentos/$id'
 import { Route as EspacoLancamentosNovoRouteImport } from './routes/$espaco/lancamentos/novo'
+import { Route as EspacoParcelamentosIdRouteImport } from './routes/$espaco/parcelamentos/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,6 +33,21 @@ const EspacoRouteRoute = EspacoRouteRouteImport.update({
 const EspacoIndexRoute = EspacoIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
+const EspacoCartoesIndexRoute = EspacoCartoesIndexRouteImport.update({
+  id: '/cartoes/',
+  path: '/cartoes/',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
+const EspacoCartoesIdRoute = EspacoCartoesIdRouteImport.update({
+  id: '/cartoes/$id',
+  path: '/cartoes/$id',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
+const EspacoCartoesNovoRoute = EspacoCartoesNovoRouteImport.update({
+  id: '/cartoes/novo',
+  path: '/cartoes/novo',
   getParentRoute: () => EspacoRouteRoute,
 } as any)
 const EspacoLancamentosIndexRoute = EspacoLancamentosIndexRouteImport.update({
@@ -46,20 +65,33 @@ const EspacoLancamentosNovoRoute = EspacoLancamentosNovoRouteImport.update({
   path: '/lancamentos/novo',
   getParentRoute: () => EspacoRouteRoute,
 } as any)
+const EspacoParcelamentosIdRoute = EspacoParcelamentosIdRouteImport.update({
+  id: '/parcelamentos/$id',
+  path: '/parcelamentos/$id',
+  getParentRoute: () => EspacoRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoRouteRouteWithChildren
   '/$espaco/': typeof EspacoIndexRoute
+  '/$espaco/cartoes/$id': typeof EspacoCartoesIdRoute
+  '/$espaco/cartoes/novo': typeof EspacoCartoesNovoRoute
   '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
   '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/parcelamentos/$id': typeof EspacoParcelamentosIdRoute
+  '/$espaco/cartoes/': typeof EspacoCartoesIndexRoute
   '/$espaco/lancamentos/': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoIndexRoute
+  '/$espaco/cartoes/$id': typeof EspacoCartoesIdRoute
+  '/$espaco/cartoes/novo': typeof EspacoCartoesNovoRoute
   '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
   '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/parcelamentos/$id': typeof EspacoParcelamentosIdRoute
+  '/$espaco/cartoes': typeof EspacoCartoesIndexRoute
   '/$espaco/lancamentos': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRoutesById {
@@ -67,8 +99,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$espaco': typeof EspacoRouteRouteWithChildren
   '/$espaco/': typeof EspacoIndexRoute
+  '/$espaco/cartoes/$id': typeof EspacoCartoesIdRoute
+  '/$espaco/cartoes/novo': typeof EspacoCartoesNovoRoute
   '/$espaco/lancamentos/$id': typeof EspacoLancamentosIdRoute
   '/$espaco/lancamentos/novo': typeof EspacoLancamentosNovoRoute
+  '/$espaco/parcelamentos/$id': typeof EspacoParcelamentosIdRoute
+  '/$espaco/cartoes/': typeof EspacoCartoesIndexRoute
   '/$espaco/lancamentos/': typeof EspacoLancamentosIndexRoute
 }
 export interface FileRouteTypes {
@@ -77,23 +113,35 @@ export interface FileRouteTypes {
     | '/'
     | '/$espaco'
     | '/$espaco/'
+    | '/$espaco/cartoes/$id'
+    | '/$espaco/cartoes/novo'
     | '/$espaco/lancamentos/$id'
     | '/$espaco/lancamentos/novo'
+    | '/$espaco/parcelamentos/$id'
+    | '/$espaco/cartoes/'
     | '/$espaco/lancamentos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$espaco'
+    | '/$espaco/cartoes/$id'
+    | '/$espaco/cartoes/novo'
     | '/$espaco/lancamentos/$id'
     | '/$espaco/lancamentos/novo'
+    | '/$espaco/parcelamentos/$id'
+    | '/$espaco/cartoes'
     | '/$espaco/lancamentos'
   id:
     | '__root__'
     | '/'
     | '/$espaco'
     | '/$espaco/'
+    | '/$espaco/cartoes/$id'
+    | '/$espaco/cartoes/novo'
     | '/$espaco/lancamentos/$id'
     | '/$espaco/lancamentos/novo'
+    | '/$espaco/parcelamentos/$id'
+    | '/$espaco/cartoes/'
     | '/$espaco/lancamentos/'
   fileRoutesById: FileRoutesById
 }
@@ -125,6 +173,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspacoIndexRouteImport
       parentRoute: typeof EspacoRouteRoute
     }
+    '/$espaco/cartoes/': {
+      id: '/$espaco/cartoes/'
+      path: '/cartoes'
+      fullPath: '/$espaco/cartoes/'
+      preLoaderRoute: typeof EspacoCartoesIndexRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
+    '/$espaco/cartoes/$id': {
+      id: '/$espaco/cartoes/$id'
+      path: '/cartoes/$id'
+      fullPath: '/$espaco/cartoes/$id'
+      preLoaderRoute: typeof EspacoCartoesIdRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
+    '/$espaco/cartoes/novo': {
+      id: '/$espaco/cartoes/novo'
+      path: '/cartoes/novo'
+      fullPath: '/$espaco/cartoes/novo'
+      preLoaderRoute: typeof EspacoCartoesNovoRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
     '/$espaco/lancamentos/': {
       id: '/$espaco/lancamentos/'
       path: '/lancamentos'
@@ -146,20 +215,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EspacoLancamentosNovoRouteImport
       parentRoute: typeof EspacoRouteRoute
     }
+    '/$espaco/parcelamentos/$id': {
+      id: '/$espaco/parcelamentos/$id'
+      path: '/parcelamentos/$id'
+      fullPath: '/$espaco/parcelamentos/$id'
+      preLoaderRoute: typeof EspacoParcelamentosIdRouteImport
+      parentRoute: typeof EspacoRouteRoute
+    }
   }
 }
 
 interface EspacoRouteRouteChildren {
   EspacoIndexRoute: typeof EspacoIndexRoute
+  EspacoCartoesIdRoute: typeof EspacoCartoesIdRoute
+  EspacoCartoesNovoRoute: typeof EspacoCartoesNovoRoute
   EspacoLancamentosIdRoute: typeof EspacoLancamentosIdRoute
   EspacoLancamentosNovoRoute: typeof EspacoLancamentosNovoRoute
+  EspacoParcelamentosIdRoute: typeof EspacoParcelamentosIdRoute
+  EspacoCartoesIndexRoute: typeof EspacoCartoesIndexRoute
   EspacoLancamentosIndexRoute: typeof EspacoLancamentosIndexRoute
 }
 
 const EspacoRouteRouteChildren: EspacoRouteRouteChildren = {
   EspacoIndexRoute: EspacoIndexRoute,
+  EspacoCartoesIdRoute: EspacoCartoesIdRoute,
+  EspacoCartoesNovoRoute: EspacoCartoesNovoRoute,
   EspacoLancamentosIdRoute: EspacoLancamentosIdRoute,
   EspacoLancamentosNovoRoute: EspacoLancamentosNovoRoute,
+  EspacoParcelamentosIdRoute: EspacoParcelamentosIdRoute,
+  EspacoCartoesIndexRoute: EspacoCartoesIndexRoute,
   EspacoLancamentosIndexRoute: EspacoLancamentosIndexRoute,
 }
 

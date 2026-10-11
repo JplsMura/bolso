@@ -214,7 +214,8 @@ async function preencherGasto(usuario: ReturnType<typeof userEvent.setup>) {
   await usuario.type(await screen.findByLabelText('Valor'), '11000')
   await usuario.type(screen.getByLabelText('Descrição'), 'Conta de luz')
   await usuario.click(await screen.findByRole('button', { name: 'Custos Fixos' }))
-  await usuario.click(await screen.findByRole('button', { name: 'Luz' }))
+  await usuario.click(screen.getByRole('combobox', { name: 'Tags' }))
+  await usuario.click(await screen.findByRole('option', { name: 'Luz' }))
   await usuario.click(screen.getByRole('button', { name: 'PIX' }))
   fireEvent.change(screen.getByLabelText('Data'), { target: { value: '2026-03-10' } })
 }
@@ -350,10 +351,47 @@ describe('novo lançamento', () => {
     )
     renderizarRota('/casa/lancamentos/novo')
 
-    await usuario.type(await screen.findByLabelText('Nova tag'), 'Mercado{Enter}')
+    const campo = await screen.findByRole('combobox', { name: 'Tags' })
+    await usuario.type(campo, 'Merc')
+    expect(await screen.findByRole('option', { name: 'Criar “Merc”' })).toBeInTheDocument()
+    await usuario.type(campo, 'ado{Enter}')
 
-    expect(await screen.findByRole('button', { name: 'Mercado', pressed: true })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Remover a tag Mercado' })).toBeInTheDocument()
+    expect(campo).toHaveValue('')
     expect(corpoTag).toEqual({ nome: 'Mercado' })
+  })
+
+  it('tags: busca, escolhe pelo teclado e tira com o ×', async () => {
+    const usuario = userEvent.setup()
+    let corpo: unknown
+    const criado = lancamentoDe({ id: '019a0000-0000-7000-8000-00000000a014' })
+    server.use(
+      ...handlersDeMetasETags(),
+      http.post(urlDoEspaco(CASA_ID, '/lancamentos'), async ({ request }) => {
+        corpo = await request.json()
+        return HttpResponse.json(criado, { status: 201 })
+      }),
+      listaCapturando([criado]).handler,
+    )
+    const { container } = renderizarRota('/casa/lancamentos/novo')
+    await preencherGasto(usuario) // já escolhe Luz
+
+    const campo = screen.getByRole('combobox', { name: 'Tags' })
+    await usuario.type(campo, 'ub')
+    expect(screen.getAllByRole('option')).toHaveLength(2)
+    expect(screen.getByRole('option', { name: 'Uber' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Criar “ub”' })).toBeInTheDocument()
+    expect(await violacoesDeAcessibilidade(container)).toEqual([])
+    // a primeira opção já vem destacada: seta para baixo vai para "Criar", seta para cima volta, Enter escolhe
+    await usuario.keyboard('{ArrowDown}{ArrowUp}{Enter}')
+    expect(screen.getByRole('button', { name: 'Remover a tag Uber' })).toBeInTheDocument()
+
+    await usuario.click(screen.getByRole('button', { name: 'Remover a tag Luz' }))
+    expect(screen.queryByRole('button', { name: 'Remover a tag Luz' })).not.toBeInTheDocument()
+    await usuario.keyboard('{Escape}')
+    await usuario.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    await waitFor(() => expect(corpo).toMatchObject({ tagIds: [TAG_UBER.id] }))
   })
 
   it('mostra o motivo quando o servidor recusa (422)', async () => {
@@ -432,7 +470,7 @@ describe('editar e excluir', () => {
     expect(descricao).toHaveValue('Conta de luz')
     expect(screen.getByLabelText('Valor')).toHaveValue('R$\u00a0110,00')
     expect(await screen.findByRole('button', { name: 'Custos Fixos', pressed: true })).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: 'Luz', pressed: true })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Remover a tag Luz' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'PIX', pressed: true })).toBeInTheDocument()
 
     await usuario.clear(descricao)

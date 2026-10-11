@@ -9,7 +9,7 @@ export function ehEspaco(valor: string): valor is Espaco {
 }
 
 /** Rotas que o menu já sabe abrir. Cada feature acrescenta a sua quando a tela existe. */
-export type RotaDoMenu = '/$espaco' | '/$espaco/lancamentos'
+export type RotaDoMenu = '/$espaco' | '/$espaco/lancamentos' | '/$espaco/cartoes'
 
 export type ItemMenu = {
   rotulo: string
@@ -43,7 +43,7 @@ export const MENU: Record<Espaco, ItemMenu[]> = {
     { rotulo: 'Início', rota: '/$espaco', noCelular: true },
     { rotulo: 'Lançamentos', rota: '/$espaco/lancamentos', noCelular: true },
     { rotulo: 'Presets' },
-    { rotulo: 'Cartões', noCelular: true },
+    { rotulo: 'Cartões', rota: '/$espaco/cartoes', noCelular: true },
     { rotulo: 'Mês', noCelular: true },
     { rotulo: 'Tags' },
     { rotulo: 'Configurações' },

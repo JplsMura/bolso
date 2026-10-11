@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib/cn'
-import type { FormaPagamento, MetaApi, TagApi, Direcao } from '../model/tipos'
+import type { CartaoApi, FormaPagamento, MetaApi, TagApi, Direcao } from '../model/tipos'
 import { type Filtros, SEM_FILTROS, temFiltro } from '../model/filtros'
 import { FORMAS_OFERECIDAS } from '../model/pagamentos'
 
@@ -8,11 +8,12 @@ type Props = {
   aoMudar: (filtros: Filtros) => void
   metas: readonly MetaApi[]
   tags: readonly TagApi[]
+  cartoes?: readonly CartaoApi[]
 }
 
 const chip = 'h-9 rounded-full bg-popover px-3.5 text-[13px] text-foreground'
 
-export function BarraDeFiltros({ filtros, aoMudar, metas, tags }: Props) {
+export function BarraDeFiltros({ filtros, aoMudar, metas, tags, cartoes = [] }: Props) {
   const nenhum = !temFiltro(filtros)
   return (
     <div className="flex flex-col gap-3">
@@ -101,6 +102,22 @@ export function BarraDeFiltros({ filtros, aoMudar, metas, tags }: Props) {
             </option>
           ))}
         </select>
+
+        {cartoes.length > 0 && (
+          <select
+            aria-label="Cartão"
+            className={chip}
+            value={filtros.cartaoId ?? ''}
+            onChange={(e) => aoMudar({ ...filtros, cartaoId: e.target.value === '' ? null : e.target.value })}
+          >
+            <option value="">Cartão</option>
+            {cartoes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
     </div>
   )

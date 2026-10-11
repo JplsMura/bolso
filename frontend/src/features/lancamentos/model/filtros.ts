@@ -7,9 +7,17 @@ export type Filtros = {
   tagId: string | null
   pagamento: FormaPagamento | null
   direcao: Direcao | null
+  cartaoId: string | null
 }
 
-export const SEM_FILTROS: Filtros = { texto: '', metaId: null, tagId: null, pagamento: null, direcao: null }
+export const SEM_FILTROS: Filtros = {
+  texto: '',
+  metaId: null,
+  tagId: null,
+  pagamento: null,
+  direcao: null,
+  cartaoId: null,
+}
 
 export function temFiltro(filtros: Filtros): boolean {
   return (
@@ -17,6 +25,7 @@ export function temFiltro(filtros: Filtros): boolean {
     filtros.metaId !== null ||
     filtros.tagId !== null ||
     filtros.pagamento !== null ||
-    filtros.direcao !== null
+    filtros.direcao !== null ||
+    filtros.cartaoId !== null
   )
 }

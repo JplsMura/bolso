@@ -17,10 +17,11 @@ public record EditarLancamentoRequest(
         @NotNull LocalDate data,
         UUID metaId,
         FormaPagamento formaPagamento,
+        UUID cartaoId,
         List<UUID> tagIds,
         @NotNull Long versao) {
 
     DadosDoLancamento paraDados() {
-        return NovoLancamentoRequest.DadosFormatados.de(direcao, valor, descricao, data, metaId, formaPagamento, tagIds);
+        return NovoLancamentoRequest.DadosFormatados.de(direcao, valor, descricao, data, metaId, formaPagamento, cartaoId, tagIds);
     }
 }

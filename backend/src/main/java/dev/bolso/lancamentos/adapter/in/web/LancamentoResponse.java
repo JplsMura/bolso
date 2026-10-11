@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Contrato da API. {@code valor} é texto ("110.00"); {@code mesReferencia} é "2026-10". {@code metaId} e
- * {@code formaPagamento} não vêm quando não se aplicam (entrada). {@code @NotNull} só marca o obrigatório no OpenAPI.
+ * Contrato da API. {@code valor} é texto ("110.00"); {@code mesReferencia} e {@code faturaMes} são "2026-10".
+ * {@code metaId} e {@code formaPagamento} não vêm quando não se aplicam (entrada); {@code cartaoId} e
+ * {@code faturaMes}, só no crédito; {@code parcela}, só em parcelamento. {@code @NotNull} só marca o obrigatório no
+ * OpenAPI.
  */
 public record LancamentoResponse(
         @NotNull UUID id,
@@ -21,6 +23,9 @@ public record LancamentoResponse(
         @NotNull String mesReferencia,
         UUID metaId,
         FormaPagamento formaPagamento,
+        UUID cartaoId,
+        String faturaMes,
+        ParcelaResponse parcela,
         @NotNull List<TagResumoResponse> tags,
         @NotNull Long versao) {
 
@@ -34,6 +39,9 @@ public record LancamentoResponse(
                 i.mesReferencia().toString(),
                 i.metaId(),
                 i.formaPagamento(),
+                i.cartaoId(),
+                i.faturaMes() == null ? null : i.faturaMes().toString(),
+                ParcelaResponse.de(i.parcela()),
                 i.tags().stream().map(TagResumoResponse::de).toList(),
                 i.versao());
     }
