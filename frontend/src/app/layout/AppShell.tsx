@@ -54,7 +54,7 @@ export function AppShell({ espaco, nomes }: Props) {
 const baseLateral = 'block rounded-[10px] px-3.5 py-3 text-[15px]'
 
 function ItemLateral({ espaco, item }: { espaco: Espaco; item: ItemMenu }) {
-  if (!item.disponivel) {
+  if (!item.rota) {
     return (
       <span className={cn(baseLateral, 'text-muted-foreground/60')}>
         {item.rotulo}
@@ -64,9 +64,9 @@ function ItemLateral({ espaco, item }: { espaco: Espaco; item: ItemMenu }) {
   }
   return (
     <Link
-      to="/$espaco"
+      to={item.rota}
       params={{ espaco }}
-      activeOptions={{ exact: true }}
+      activeOptions={{ exact: item.rota === '/$espaco' }}
       className={cn(baseLateral, 'text-muted-foreground hover:text-foreground')}
       activeProps={{ className: 'bg-popover font-semibold text-primary hover:text-primary' }}
     >
@@ -78,7 +78,7 @@ function ItemLateral({ espaco, item }: { espaco: Espaco; item: ItemMenu }) {
 const baseInferior = 'flex flex-1 flex-col items-center justify-center gap-1 text-xs'
 
 function ItemInferior({ espaco, item }: { espaco: Espaco; item: ItemMenu }) {
-  if (!item.disponivel) {
+  if (!item.rota) {
     return (
       <span className={cn(baseInferior, 'text-muted-foreground/60')}>
         {item.rotulo}
@@ -88,9 +88,9 @@ function ItemInferior({ espaco, item }: { espaco: Espaco; item: ItemMenu }) {
   }
   return (
     <Link
-      to="/$espaco"
+      to={item.rota}
       params={{ espaco }}
-      activeOptions={{ exact: true }}
+      activeOptions={{ exact: item.rota === '/$espaco' }}
       className={cn(baseInferior, 'text-muted-foreground')}
       activeProps={{ className: 'font-semibold text-primary' }}
     >

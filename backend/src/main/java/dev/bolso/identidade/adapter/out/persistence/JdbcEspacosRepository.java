@@ -1,9 +1,9 @@
 package dev.bolso.identidade.adapter.out.persistence;
 
 import dev.bolso.identidade.Papel;
+import dev.bolso.identidade.TipoEspaco;
 import dev.bolso.identidade.application.EspacosRepository;
 import dev.bolso.identidade.domain.Espaco;
-import dev.bolso.identidade.domain.TipoEspaco;
 import dev.bolso.identidade.domain.UsuarioId;
 import java.util.List;
 import java.util.Optional;

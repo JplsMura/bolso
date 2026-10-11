@@ -5,7 +5,10 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-const api = 'http://localhost:8080'
+// Fora do Docker a API está em localhost; no serviço web-dev do compose, em http://api:8080.
+const api = process.env.VITE_API_PROXY ?? 'http://localhost:8080'
+// Pasta montada do Windows num contêiner Linux não avisa quando um arquivo muda: o web-dev liga a varredura.
+const varredura = process.env.VITE_POLLING === 'true'
 
 export default defineConfig({
   // o plugin do router precisa vir antes do react
@@ -16,6 +19,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: { '/api': api, '/actuator': api, '/v3': api },
+    ...(varredura ? { watch: { usePolling: true, interval: 300 } } : {}),
   },
   test: {
     environment: 'jsdom',

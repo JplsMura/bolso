@@ -18,14 +18,14 @@ Cada contexto tem a sua própria linguagem: "fatura" no contexto de Cartões é 
 | Contexto | O que é dono | Regras que moram aqui |
 | --- | --- | --- |
 | Identidade | usuário, espaço (Casa ou Empresa), membro, papel | login por código no e-mail e Google; quem vê qual espaço |
-| Lançamentos | lançamento, categoria, tag, preset, parcelamento | valor positivo; forma de pagamento; cartão só se for crédito; parcelas criadas nos meses seguintes |
+| Lançamentos | lançamento, tag, preset, parcelamento | valor positivo; forma de pagamento; cartão só se for crédito; parcelas criadas nos meses seguintes |
 | Cartões | cartão, fatura do mês, limite | fatura aberta, fechada ou paga; limite usado; dia de fechamento |
 | Orçamento | as 6 metas, percentual por mês, fechamento do mês | percentuais somam 100%; fechar congela o mês; só o dono reabre |
 | Faturamento PJ | empresa, regime, nota emitida, tomador, parâmetros fiscais | teto do MEI (R$ 81.000 e tolerância de R$ 97.200); Fator R; cálculo do imposto |
 
 **Como se falam.** Um contexto nunca lê a tabela de outro. Conversam por duas vias:
 
-- **Chamada síncrona** a uma interface pública do outro módulo, quando precisam da resposta na hora. Exemplo: Lançamentos pergunta a Cartões em qual fatura cai uma compra feita nesta data.
+- **Chamada síncrona** a uma interface pública do outro módulo, quando precisam da resposta na hora. Exemplo: Lançamentos pergunta em qual fatura cai uma compra feita nesta data. Para não criar ciclo (Cartões também precisa somar os lançamentos de cada fatura), a pergunta é uma porta publicada pelo Lançamentos (`FaturasDoCartao`), que o Cartões implementa; o Cartões lê somas e itens pela `LancamentosApi`. A dependência fica num sentido só: `cartoes → lancamentos` (spec 004).
 - **Evento** quando só avisam que algo aconteceu. Exemplo: Faturamento PJ publica "nota emitida" e Lançamentos cria a receita correspondente, guardando só uma referência de origem, sem chave estrangeira.
 
 **Agregados.** Dentro de cada contexto, o que precisa ser consistente junto fica num agregado, e só a raiz é acessada de fora: a fatura com os seus totais, o mês de orçamento com as suas 6 metas, o parcelamento com as suas parcelas. Isso casa com o bloqueio otimista (coluna `version`) já previsto no banco.

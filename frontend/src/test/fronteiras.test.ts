@@ -18,7 +18,9 @@ async function erros(arquivo: string, codigo: string, regra: string) {
 const errosDeFronteira = (arquivo: string, codigo: string) =>
   erros(arquivo, codigo, 'boundaries/dependencies')
 
-describe('fronteiras do front', () => {
+// a primeira chamada carrega a config do ESLint e o resolvedor de imports do TypeScript; numa máquina
+// mais lenta isso passa dos 5 s padrão do Vitest (aconteceu na 004, quando a feature cartoes ganhou código)
+describe('fronteiras do front', { timeout: 30_000 }, () => {
   it('bloqueia uma feature importando outra', async () => {
     const erros = await errosDeFronteira(
       'src/features/lancamentos/ui/Lista.tsx',
@@ -56,6 +58,19 @@ describe('fronteiras do front', () => {
     expect(daUi).toEqual([])
   })
 
+  it('permite model e api usarem os tipos do contrato, mas só a api usa o cliente', async () => {
+    const tiposNoModel = await errosDeFronteira(
+      'src/features/lancamentos/model/tipos.ts',
+      "import type { components } from '@/shared/api/schema'\nexport type X = components['schemas']\n",
+    )
+    const clienteNoModel = await errosDeFronteira(
+      'src/features/lancamentos/model/regras.ts',
+      "import { api } from '@/shared/api/client'\nexport const x = api\n",
+    )
+    expect(tiposNoModel).toEqual([])
+    expect(clienteNoModel).toHaveLength(1)
+  })
+
   it('permite rotas usarem a fachada da feature', async () => {
     const erros = await errosDeFronteira(
       'src/routes/$espaco/lancamentos.tsx',
@@ -77,7 +92,7 @@ describe('fronteiras do front', () => {
   })
 })
 
-describe('dinheiro', () => {
+describe('dinheiro', { timeout: 30_000 }, () => {
   it('bloqueia parseFloat e Number.parseFloat', async () => {
     const global = await erros(
       'src/features/lancamentos/ui/Valor.tsx',
